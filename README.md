@@ -1,2 +1,0 @@
-# Backend
-Shopping-mall Project
