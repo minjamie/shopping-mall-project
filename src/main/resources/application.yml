@@ -1,0 +1,9 @@
+server:
+    port: 8080
+datasource:
+    username: root
+    password: 2qordjr10@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/shopping-mall?useUnicode=true&characterEncoding=UTF-8
+jwt:
+    secret-key-source: super-coding
