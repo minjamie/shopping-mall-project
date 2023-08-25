@@ -1,4 +1,4 @@
-package com.supercoding.shopping;
+package com.example.shopping;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
