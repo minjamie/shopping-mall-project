@@ -48,7 +48,7 @@ public class Product extends BaseTimeEntity {
 
     private LocalDateTime saleEndDate; // 할인종료날짜
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
