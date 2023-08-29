@@ -1,9 +1,8 @@
-package com.example.shopping.service;
+package com.example.shopping.security;
 
 import com.example.shopping.domain.Address;
 import com.example.shopping.domain.Role;
 import com.example.shopping.domain.User;
-import com.example.shopping.dto.CustomUserDetails;
 import com.example.shopping.exception.NotFoundException;
 import com.example.shopping.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

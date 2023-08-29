@@ -30,7 +30,7 @@ logging:
 # HS512 알고리즘 사용
 # echo 'super-coding-project-shopping-mall-authorization-secret-key-half-backend-file-key' | openssl base64
 jwt:
-    secret: c3VwZXItY29kaW5nLXByb2plY3Qtc2hvcHBpbmctbWFsbC1hdXRob3JpemF0aW9uLXNlY3JldC1rZXktaGFsZi1iYWNrZW5kLWZpbGUta2V5Cg==
+    secretKey: c3VwZXItY29kaW5nLXByb2plY3Qtc2hvcHBpbmctbWFsbC1hdXRob3JpemF0aW9uLXNlY3JldC1rZXktaGFsZi1iYWNrZW5kLWZpbGUta2V5Cg==
     access-token-validity-in-seconds: 3600 # 1시간
     refresh-token-validity-in-seconds: 1209600 # 14일
 

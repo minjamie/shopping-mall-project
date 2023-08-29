@@ -1,4 +1,4 @@
-package com.example.shopping.dto;
+package com.example.shopping.security;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,23 +46,24 @@ public class CustomUserDetails implements UserDetails {
         return this.email;
     }
 
+    // 세부 설정
     @Override
-    public boolean isAccountNonExpired() {
-        return false;
+    public boolean isAccountNonExpired() { // 계정의 만료 여부
+        return true;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return false;
+    public boolean isAccountNonLocked() { // 계정 잠김 여부
+        return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
+    public boolean isCredentialsNonExpired() { // 비밀번호 만료 여부
+        return true;
     }
 
     @Override
-    public boolean isEnabled() {
-        return false;
+    public boolean isEnabled() { // 계정 활성화 여부
+        return true;
     }
 }

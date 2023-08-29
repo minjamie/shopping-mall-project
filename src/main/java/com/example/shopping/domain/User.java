@@ -18,14 +18,12 @@ public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String name;           // 이름
     private String email;          // 이메일 (로그인 시 사용)
     private String password;       // 비밀번호
     private String phoneNumber;    // 핸드폰 번호
     private String sex;            // 성별
     private String profileImgUrl; // 프로필 이미지 url
-
     private String introduce;   // 간단 소개
 
     @OneToMany(mappedBy = "user")

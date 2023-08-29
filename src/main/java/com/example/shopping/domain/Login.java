@@ -7,7 +7,6 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -22,8 +21,7 @@ public class Login {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    private Integer count;
+    private String refreshToken;
 
 
 }

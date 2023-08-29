@@ -2,7 +2,9 @@ package com.example.shopping.dto;
 
 import lombok.*;
 
+
 import java.util.List;
+
 
 @Setter
 @Getter
@@ -10,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SignResponse {
+public class GlobalResponse {
     private String status;
     private String message;
     private List<String> data;

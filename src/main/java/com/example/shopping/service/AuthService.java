@@ -1,18 +1,31 @@
 package com.example.shopping.service;
 
 import com.example.shopping.domain.Address;
+import com.example.shopping.domain.Login;
 import com.example.shopping.domain.Role;
 import com.example.shopping.domain.User;
-import com.example.shopping.dto.SignResponse;
+import com.example.shopping.dto.GlobalResponse;
+import com.example.shopping.dto.LoginRequest;
 import com.example.shopping.dto.SignupRequest;
+import com.example.shopping.dto.Token;
+import com.example.shopping.exception.NotAcceptException;
 import com.example.shopping.exception.NotFoundException;
 import com.example.shopping.repository.AddressRepository;
+import com.example.shopping.repository.LoginRepository;
 import com.example.shopping.repository.RoleRepository;
 import com.example.shopping.repository.UserRepository;
+import com.example.shopping.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,18 +34,20 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
-
+    private final LoginRepository loginRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public SignResponse signup(SignupRequest signupRequest) {
+    public GlobalResponse signup(SignupRequest signupRequest) {
         String email = signupRequest.getEmail();
         String password = signupRequest.getPassword();
         String phoneNumber = signupRequest.getPhoneNumber();
 
         // 이메일 중복 오류 (exception으로 변경 해야함)
         if (userRepository.existsByEmail(email)) {
-            return SignResponse.builder().status("fail")
+            return GlobalResponse.builder().status("fail")
                     .message("이메일 중복입니다.")
                     .build();
         }
@@ -40,14 +55,14 @@ public class AuthService {
 
         // 비밀번호 길이 오류 (exception으로 변경 해야함)
         if (password.length() <= 8 || password.length() >= 20) {
-            return  SignResponse.builder().status("fail")
+            return  GlobalResponse.builder().status("fail")
                     .message("비밀번호가 8자 이하 20자 이상 입니다.")
                     .build();
         }
 
         // 핸드폰 번호 길이 오류 (exception으로 변경 해야함)
         if (phoneNumber.length() != 11) {
-            return SignResponse.builder().status("fail")
+            return GlobalResponse.builder().status("fail")
                     .message("휴대폰 번호를 제대로 입력해 주세요.")
                     .build();
         }
@@ -85,8 +100,42 @@ public class AuthService {
                         .name("ROLE_USER")
                         .build());
 
-        return SignResponse.builder()
+        return GlobalResponse.builder()
                 .status("success")
                 .message("회원가입에 성공했습니다.").build();
+    }
+
+    @Transactional
+    public Token login(LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new NotFoundException("해당 유저를 찾을 수 없습니다."));
+
+            List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+
+            Token token = jwtTokenProvider.createToken(email, roles);
+
+            loginRepository.save(
+                    Login.builder()
+                            .user(user)
+                            .refreshToken(token.getRefreshToken())
+                            .count(0)
+                            .build());
+
+            return token;
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NotAcceptException("로그인 할 수 없습니다.");
+        }
     }
 }
