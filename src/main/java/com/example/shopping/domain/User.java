@@ -30,4 +30,7 @@ public class User extends BaseTimeEntity {
     private LocalDateTime updateDate;
     private boolean isAuth;
     private boolean isWithdrawal;
+
+    @OneToOne(mappedBy = "user")
+    private Pay pay;
 }
