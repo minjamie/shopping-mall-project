@@ -17,7 +17,9 @@ public class Pay {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Integer id;
+
         private Integer amount;
+
         @OneToOne
         private User user;
 }
