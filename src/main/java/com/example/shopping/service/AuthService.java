@@ -39,6 +39,8 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
+    private static final String TOKEN_PREFIX = "Bearer ";
+
     @Transactional
     public GlobalResponse signup(SignupRequest signupRequest) {
         String email = signupRequest.getEmail();
@@ -130,12 +132,30 @@ public class AuthService {
                             .count(0)
                             .build());
 
+            // 추후 로그인 실패 카운트 증가 코드 작성
             return token;
-
 
         } catch (Exception e) {
             e.printStackTrace();
             throw new NotAcceptException("로그인 할 수 없습니다.");
         }
+    }
+
+    @Transactional
+    public void logout(String requestRefreshToken) {
+        String refreshToken = resolveToken(requestRefreshToken);
+
+        Login login = loginRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new NotFoundException("해당 토큰을 찾을 수 없습니다."));
+
+        login.setRefreshToken(null);
+    }
+
+    // "Bearer {AT}" 에서 {AT} 추출
+    public String resolveToken(String accessTokenInHeader) {
+        if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
+            return accessTokenInHeader.substring(TOKEN_PREFIX.length());
+        }
+        return null;
     }
 }

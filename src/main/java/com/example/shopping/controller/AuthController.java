@@ -8,10 +8,8 @@ import com.example.shopping.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,5 +48,16 @@ public class AuthController {
             response.put("message", "로그인에 실패했습니다.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader("REFRESH-TOKEN") String requestRefreshToken) {
+
+           Map<String, String> response = new HashMap<>();
+           authService.logout(requestRefreshToken);
+
+            response.put("status", "success");
+            response.put("message", "로그아웃에 성공했습니다.");
+            return ResponseEntity.ok(response);
     }
 }

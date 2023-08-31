@@ -21,7 +21,10 @@ public class Login {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Setter
     private String refreshToken;
+    private int count;
 
 
 }
