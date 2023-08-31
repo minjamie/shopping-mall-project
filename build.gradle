@@ -47,8 +47,11 @@ dependencies {
     // mysql
     runtimeOnly 'mysql:mysql-connector-java:8.0.28'
 
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // validation
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.1.2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.7.15'
 
     // cache
     implementation 'org.springframework.boot:spring-boot-starter-cache'
