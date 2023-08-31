@@ -39,7 +39,6 @@ public class AuthController {
 
         if (token != null) {
             httpServletResponse.setHeader("ACCESS-TOKEN", TOKEN_PREFIX + token.getAccessToken());
-            httpServletResponse.setHeader("REFRESH-TOKEN", TOKEN_PREFIX + token.getRefreshToken());
             response.put("status", "success");
             response.put("message", "로그인에 성공했습니다.");
             return ResponseEntity.ok(response);
@@ -50,14 +49,15 @@ public class AuthController {
         }
     }
 
+
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(@RequestHeader("REFRESH-TOKEN") String requestRefreshToken) {
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
 
            Map<String, String> response = new HashMap<>();
-           authService.logout(requestRefreshToken);
+           authService.logout(requestAccessToken);
 
-            response.put("status", "success");
-            response.put("message", "로그아웃에 성공했습니다.");
-            return ResponseEntity.ok(response);
+           response.put("status", "success");
+           response.put("message", "로그아웃에 성공했습니다.");
+           return ResponseEntity.ok(response);
     }
 }

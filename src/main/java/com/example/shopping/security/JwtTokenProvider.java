@@ -29,7 +29,6 @@ import java.util.List;
 public class JwtTokenProvider implements InitializingBean {
 
     private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
 
     private static final String AUTHORITIES_KEY = "roles";
     private static final String EMAIL_KEY = "email";

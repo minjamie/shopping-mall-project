@@ -41,31 +41,18 @@ public class AuthService {
 
     private static final String TOKEN_PREFIX = "Bearer ";
 
+
+    // 회원가입
     @Transactional
     public GlobalResponse signup(SignupRequest signupRequest) {
         String email = signupRequest.getEmail();
         String password = signupRequest.getPassword();
         String phoneNumber = signupRequest.getPhoneNumber();
 
-        // 이메일 중복 오류 (exception으로 변경 해야함)
-        if (userRepository.existsByEmail(email)) {
-            return GlobalResponse.builder().status("fail")
-                    .message("이메일 중복입니다.")
-                    .build();
-        }
-
-
         // 비밀번호 길이 오류 (exception으로 변경 해야함)
         if (password.length() <= 8 || password.length() >= 20) {
             return  GlobalResponse.builder().status("fail")
                     .message("비밀번호가 8자 이하 20자 이상 입니다.")
-                    .build();
-        }
-
-        // 핸드폰 번호 길이 오류 (exception으로 변경 해야함)
-        if (phoneNumber.length() != 11) {
-            return GlobalResponse.builder().status("fail")
-                    .message("휴대폰 번호를 제대로 입력해 주세요.")
                     .build();
         }
 
@@ -107,6 +94,8 @@ public class AuthService {
                 .message("회원가입에 성공했습니다.").build();
     }
 
+
+    // 로그인
     @Transactional
     public Token login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
@@ -121,18 +110,28 @@ public class AuthService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new NotFoundException("해당 유저를 찾을 수 없습니다."));
 
-            List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+            Integer userId = user.getId();
 
+            Login loginFound = loginRepository.findByUserId(userId);
+
+            List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
             Token token = jwtTokenProvider.createToken(email, roles);
 
-            loginRepository.save(
-                    Login.builder()
-                            .user(user)
-                            .refreshToken(token.getRefreshToken())
-                            .count(0)
-                            .build());
+            String refreshToken = token.getRefreshToken();
+
+            if (loginFound == null) {
+                loginRepository.save(
+                        Login.builder()
+                                .user(user)
+                                .refreshToken(refreshToken)
+                                .count(0)
+                                .build());
+            } else {
+                loginFound.setRefreshToken(refreshToken);
+            }
 
             // 추후 로그인 실패 카운트 증가 코드 작성
+
             return token;
 
         } catch (Exception e) {
@@ -141,20 +140,28 @@ public class AuthService {
         }
     }
 
-    @Transactional
-    public void logout(String requestRefreshToken) {
-        String refreshToken = resolveToken(requestRefreshToken);
 
-        Login login = loginRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new NotFoundException("해당 토큰을 찾을 수 없습니다."));
+    // 로그아웃
+    @Transactional
+    public void logout(String requestAccessToken) {
+        String email = resolveToken(requestAccessToken);
+
+        Login login = loginRepository.findByUserEmail(email)
+                .orElseThrow(() -> new NotFoundException("해당 유저를 찾을 수 없습니다."));
 
         login.setRefreshToken(null);
+
     }
 
+    // TODO : 리프레쉬 토큰으로 재발급
+    // TODO : 토큰 재발급
+
     // "Bearer {AT}" 에서 {AT} 추출
+    // ACCESS-TOKEN에서 user emaill 값 가져오기
     public String resolveToken(String accessTokenInHeader) {
         if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
-            return accessTokenInHeader.substring(TOKEN_PREFIX.length());
+            String token = accessTokenInHeader.substring(TOKEN_PREFIX.length());
+            return jwtTokenProvider.getUserEmail(token);
         }
         return null;
     }

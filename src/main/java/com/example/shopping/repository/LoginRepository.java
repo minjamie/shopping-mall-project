@@ -8,6 +8,11 @@ import java.util.Optional;
 
 @Repository
 public interface LoginRepository extends JpaRepository<Login, Integer> {
-    Optional<Login> findByRefreshToken(String requestRefreshToken);
 
+    void deleteByUserId(Integer userId);
+
+    Login findByUserId(Integer userId);
+
+
+    Optional<Login> findByUserEmail(String email);
 }
