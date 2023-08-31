@@ -35,4 +35,7 @@ public class User extends BaseTimeEntity {
 
     private boolean isAuth;     // 인증 유무
     private boolean isWithdrawal;   // 탈퇴 유무
+
+    @OneToOne(mappedBy = "user")
+    private Pay pay;
 }
