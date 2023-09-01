@@ -12,16 +12,12 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: create
         properties:
             hibernate:
                 format_sql : true
                 default_batch_fetch_size: 1000
         show-sql: true
-
-    redis:
-        port: 6379
-        host: localhost
 
 logging:
     level:

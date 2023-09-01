@@ -49,13 +49,6 @@ public class AuthService {
         String password = signupRequest.getPassword();
         String phoneNumber = signupRequest.getPhoneNumber();
 
-        // 비밀번호 길이 오류 (exception으로 변경 해야함)
-        if (password.length() <= 8 || password.length() >= 20) {
-            return  GlobalResponse.builder().status("fail")
-                    .message("비밀번호가 8자 이하 20자 이상 입니다.")
-                    .build();
-        }
-
         User user = User.builder()
                 .name(signupRequest.getName())
                 .email(email)
@@ -92,6 +85,12 @@ public class AuthService {
         return GlobalResponse.builder()
                 .status("success")
                 .message("회원가입에 성공했습니다.").build();
+    }
+
+
+    // 회원 가입 이메일 중복 확인
+    public boolean check(String email) {
+        return userRepository.existsByEmail(email);
     }
 
 
@@ -165,4 +164,6 @@ public class AuthService {
         }
         return null;
     }
+
+
 }

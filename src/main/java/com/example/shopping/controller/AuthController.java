@@ -50,6 +50,14 @@ public class AuthController {
     }
 
 
+    // 중복체크가 안되네 왜..
+    @GetMapping("/sign/check")
+    public ResponseEntity<Boolean> login(@RequestBody String email) {
+        return ResponseEntity.ok(authService.check(email));
+
+    }
+
+
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
 
