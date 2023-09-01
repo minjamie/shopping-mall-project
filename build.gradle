@@ -47,6 +47,9 @@ dependencies {
     // mysql
     runtimeOnly 'mysql:mysql-connector-java:8.0.28'
 
+    // mariadb
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
+
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
