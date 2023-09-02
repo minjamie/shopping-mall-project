@@ -13,7 +13,7 @@ import com.example.shopping.exception.NotFoundException;
 import com.example.shopping.repository.AddressRepository;
 import com.example.shopping.repository.LoginRepository;
 import com.example.shopping.repository.RoleRepository;
-import com.example.shopping.repository.UserRepository;
+import com.example.shopping.repository.user.UserRepository;
 import com.example.shopping.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

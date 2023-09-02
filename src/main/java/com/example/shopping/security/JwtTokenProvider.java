@@ -1,7 +1,7 @@
 package com.example.shopping.security;
 
 import com.example.shopping.dto.Token;
-import com.example.shopping.repository.UserRepository;
+import com.example.shopping.repository.user.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

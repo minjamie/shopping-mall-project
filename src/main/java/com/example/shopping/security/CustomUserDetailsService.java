@@ -4,7 +4,7 @@ import com.example.shopping.domain.Address;
 import com.example.shopping.domain.Role;
 import com.example.shopping.domain.User;
 import com.example.shopping.exception.NotFoundException;
-import com.example.shopping.repository.UserRepository;
+import com.example.shopping.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
