@@ -18,11 +18,11 @@ public class Cart extends BaseTimeEntity {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_option_id", nullable = false)
+    @JoinColumn(referencedColumnName = "id",name = "product_option_id", nullable = false)
     private ProductOption productOption;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(referencedColumnName = "id", name = "user_id", nullable = false)
     private User user;
 
     private boolean isDelete;
