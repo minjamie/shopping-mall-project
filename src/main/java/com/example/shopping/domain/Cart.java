@@ -4,7 +4,6 @@ import com.example.shopping.domain.common.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
-// TODO : 화정 AuditingEntityListener 기능 추가
 
 @Getter
 @Setter
@@ -17,7 +16,16 @@ public class Cart extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer productId;
-    private Integer userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_option_id", nullable = false)
+    private ProductOption productOption;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    private boolean isDelete;
+
     private Integer count;
 }

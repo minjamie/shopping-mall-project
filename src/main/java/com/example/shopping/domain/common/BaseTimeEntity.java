@@ -21,5 +21,4 @@ public class BaseTimeEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt; // 수정시간
-
 }

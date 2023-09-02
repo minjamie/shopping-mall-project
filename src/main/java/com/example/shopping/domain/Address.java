@@ -1,7 +1,5 @@
 package com.example.shopping.domain;
 
-// 민혁님
-
 import lombok.*;
 
 import javax.persistence.*;
