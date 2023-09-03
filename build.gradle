@@ -50,9 +50,6 @@ dependencies {
     // mariadb
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
 
-    // redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
     // validation
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.7.15'
 
@@ -67,4 +64,8 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.named('bootJar'){
+    mainClass = 'com.example.shopping.ShoppingApplication'
 }
