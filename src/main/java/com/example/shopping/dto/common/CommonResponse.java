@@ -1,4 +1,4 @@
-package com.example.shopping.dto.cart;
+package com.example.shopping.dto.common;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @Setter
 @Builder
-public class CartResponse {
+public class CommonResponse<Data> {
     private String status;
     private String message;
     private HttpStatus httpStatus;
+    private Data data;
 }
