@@ -1,10 +1,12 @@
 package com.example.shopping.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "product_option")
 public class ProductOption {

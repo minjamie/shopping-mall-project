@@ -10,7 +10,7 @@ import com.example.shopping.dto.SignupRequest;
 import com.example.shopping.dto.Token;
 import com.example.shopping.exception.NotAcceptException;
 import com.example.shopping.exception.NotFoundException;
-import com.example.shopping.repository.AddressRepository;
+import com.example.shopping.repository.address.AddressRepository;
 import com.example.shopping.repository.LoginRepository;
 import com.example.shopping.repository.RoleRepository;
 import com.example.shopping.repository.user.UserRepository;

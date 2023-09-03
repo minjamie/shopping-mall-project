@@ -28,4 +28,14 @@ public class Cart extends BaseTimeEntity {
     private boolean isDelete;
 
     private Integer count;
+
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "id=" + id +
+                ", productOption=" + productOption +
+                ", isDelete=" + isDelete +
+                ", count=" + count +
+                '}';
+    }
 }
