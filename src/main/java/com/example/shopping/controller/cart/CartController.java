@@ -6,10 +6,13 @@ import com.example.shopping.dto.cart.OrderCartRequest;
 import com.example.shopping.dto.cart.UpdatedCartRequest;
 import com.example.shopping.dto.common.ResultDto;
 import com.example.shopping.service.cart.CartService;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,8 +38,8 @@ public class CartController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/order/{cartIds}")
-    public ResponseEntity<ResultDto<Void>> orderCart(@RequestParam("cartIds") String cartIds, @RequestBody OrderCartRequest orderCartRequest){
+    @PostMapping("/order")
+    public ResponseEntity<ResultDto<Void>> orderCart(@RequestParam("cartIds") List<Integer> cartIds, @RequestBody OrderCartRequest orderCartRequest){
         CartResponse orderCartResponse = cartService.orderCart(cartIds, orderCartRequest);
         ResultDto<Void> result  = ResultDto.in(orderCartResponse.getStatus(), orderCartResponse.getMessage());
         return ResponseEntity.status(orderCartResponse.getHttpStatus()).body(result);

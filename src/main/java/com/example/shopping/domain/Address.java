@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,9 +22,14 @@ public class Address {
     private User user;
 
     private String main;
+
+    @Column(nullable = true)
     private String detail;
     private Boolean isOrder;
+    @Column(name = "zip_code")
+    private String zieCode;
+
+
+    @Column(nullable = true, columnDefinition = "DEFAULT false")
     private Boolean isDefault;
-
-
 }

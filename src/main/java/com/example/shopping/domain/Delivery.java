@@ -23,10 +23,8 @@ public class Delivery {
     private String contactB;
     private String recipient;
     private String request;
-    @Column(name = "zip_code")
-    private String zieCode;
 
     @OneToOne
-    @JoinColumn(referencedColumnName = "id")
+    @JoinColumn(name = "addressId",referencedColumnName = "id")
     private Address address;
 }
