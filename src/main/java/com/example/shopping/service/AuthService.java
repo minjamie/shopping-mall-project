@@ -89,7 +89,7 @@ public class AuthService {
 
 
     // 회원 가입 이메일 중복 확인
-    public boolean check(String email) {
+    public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
 
@@ -143,7 +143,7 @@ public class AuthService {
     // 로그아웃
     @Transactional
     public void logout(String requestAccessToken) {
-        String email = resolveToken(requestAccessToken);
+        String email = resolveTokenEmail(requestAccessToken);
 
         Login login = loginRepository.findByUserEmail(email)
                 .orElseThrow(() -> new NotFoundException("해당 유저를 찾을 수 없습니다."));
@@ -152,15 +152,61 @@ public class AuthService {
 
     }
 
-    // TODO : 리프레쉬 토큰으로 재발급
-    // TODO : 토큰 재발급
+    // AT가 만료 검증
+    public boolean validate(String requestAccessToken) {
+        String accessToken = resolveToken(requestAccessToken);
+        return jwtTokenProvider.validateAccessTokenOnlyExpired(accessToken);  // true = 재발급
+    }
+
+
+    // 토큰 재발급: validate method가 ture 반환 때만 사용 -> AT, RT 재발급
+    @Transactional
+    public Token reissue(String requestAccessToken) {
+        String email = resolveTokenEmail(requestAccessToken);
+        String accessToken = resolveToken(requestAccessToken);
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("이메일에 해당하는 유저가 없습니다."));
+
+        Integer userId = user.getId();
+
+        Login login = loginRepository.findByUserId(userId);
+
+        String foundRefreshToken = login.getRefreshToken();
+
+        if (foundRefreshToken == null) { // 토큰이 없을 때
+            return null; // 재로그인 요청
+        }
+
+        if (!jwtTokenProvider.validateRefreshToken(foundRefreshToken)) { // 토큰이 유효하지 않을 때
+            return null; // 재로그인 요청
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+
+        Token token = jwtTokenProvider.createToken(email, roles);
+
+        String refreshToken = token.getRefreshToken();
+        login.setRefreshToken(refreshToken);
+        return token;
+    }
 
     // "Bearer {AT}" 에서 {AT} 추출
     // ACCESS-TOKEN에서 user emaill 값 가져오기
-    public String resolveToken(String accessTokenInHeader) {
+    public String resolveTokenEmail(String accessTokenInHeader) {
         if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
             String token = accessTokenInHeader.substring(TOKEN_PREFIX.length());
             return jwtTokenProvider.getUserEmail(token);
+        }
+        return null;
+    }
+
+    public String resolveToken(String accessTokenInHeader) {
+        if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
+            return accessTokenInHeader.substring(TOKEN_PREFIX.length());
         }
         return null;
     }

@@ -50,11 +50,19 @@ public class AuthController {
     }
 
 
-    // 중복체크가 안되네 왜..
-    @GetMapping("/sign/check")
-    public ResponseEntity<Boolean> login(@RequestBody String email) {
-        return ResponseEntity.ok(authService.check(email));
+    @GetMapping("/sign/{email}/exists")
+    public ResponseEntity<Map<String, String>> emailExists(@PathVariable String email) {
+        Map<String, String> response = new HashMap<>();
+        boolean isExists = authService.emailExists(email);
 
+        if (isExists) {
+            response.put("status", "fail");
+            response.put("message", "이메일 중복 입니다.");
+        } else {
+            response.put("status", "success");
+            response.put("message", "사용 가능한 이메일 입니다.");
+        }
+        return ResponseEntity.ok(response);
     }
 
 
@@ -67,5 +75,40 @@ public class AuthController {
            response.put("status", "success");
            response.put("message", "로그아웃에 성공했습니다.");
            return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String, String>> validate(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
+
+        Map<String, String> response = new HashMap<>();
+        boolean isValidate = authService.validate(requestAccessToken);
+
+        if (isValidate) {
+            response.put("status", "success"); // 재발급 필요
+            response.put("message", "access-token이 유효합니다.");
+        } else {
+            response.put("status", "fail"); // 재발급 불필요
+            response.put("message", "access-token이 만료되었습니다..");
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<Map<String, String>> reissue(@RequestHeader("ACCESS-TOKEN") String requestAccessToken,
+                                                       HttpServletResponse httpServletResponse) {
+        Map<String, String> response = new HashMap<>();
+        Token reissuedToken = authService.reissue(requestAccessToken);
+
+        if (reissuedToken != null) {
+            httpServletResponse.setHeader("ACCESS-TOKEN", TOKEN_PREFIX + reissuedToken.getAccessToken());
+            response.put("status", "success");
+            response.put("message", "재발급에 성공했습니다.");
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("status", "fail");
+            response.put("message", "재발급에 실패했습니다. 재로그인 해주세요.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
     }
 }

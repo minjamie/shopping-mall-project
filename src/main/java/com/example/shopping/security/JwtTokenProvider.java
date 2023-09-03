@@ -1,11 +1,7 @@
 package com.example.shopping.security;
 
 import com.example.shopping.dto.Token;
-import com.example.shopping.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -115,13 +111,33 @@ public class JwtTokenProvider implements InitializingBean {
         return getClaims(token).getExpiration().getTime();
     }
 
-    // TODO: refresh-token 검증
-    public boolean validateRefreshToken(String refreshToken) { // 회원이 탈퇴한 경우
+    // refresh-token 검증
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(signingKey)
+                    .build()
+                    .parseClaimsJws(refreshToken);
+            return true;
+        } catch (SignatureException e) {
+            log.error("Invalid JWT signature.");
+        } catch (MalformedJwtException e) {
+            log.error("Invalid JWT token.");
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token.");
+        } catch (UnsupportedJwtException e) {
+            log.error("Unsupported JWT token.");
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty.");
+        } catch (NullPointerException e){
+            log.error("JWT Token is empty.");
+        }
         return false;
     }
 
+
     // filter에서 사용
-    // TODO: NFE 방지, 로그아웃 상황 추가 해야함
+    // TODO: 로그아웃 상황 추가 해야함
     // access-token 검증
     public boolean validateAccessToken(String accessToken) {
         try {

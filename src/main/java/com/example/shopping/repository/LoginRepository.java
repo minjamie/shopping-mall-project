@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface LoginRepository extends JpaRepository<Login, Integer> {
 
-    void deleteByUserId(Integer userId);
+    Login findByRefreshToken(String refreshToken);
 
     Login findByUserId(Integer userId);
 
