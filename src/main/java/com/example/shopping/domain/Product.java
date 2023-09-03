@@ -51,4 +51,7 @@ public class Product extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "product")
     private List<ProductOption> productOptions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<Brand> brands = new ArrayList<>();
 }
