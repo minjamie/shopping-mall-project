@@ -1,21 +1,19 @@
-package com.example.shopping.service;
+package com.example.shopping.service.auth;
 
-import com.example.shopping.domain.Address;
-import com.example.shopping.domain.Login;
-import com.example.shopping.domain.Role;
-import com.example.shopping.domain.User;
-import com.example.shopping.dto.GlobalResponse;
-import com.example.shopping.dto.LoginRequest;
-import com.example.shopping.dto.SignupRequest;
-import com.example.shopping.dto.Token;
-import com.example.shopping.exception.NotAcceptException;
-import com.example.shopping.exception.NotFoundException;
+import com.example.shopping.domain.*;
+import com.example.shopping.domain.Enum.RoleType;
+import com.example.shopping.dto.auth.LoginRequest;
+import com.example.shopping.dto.auth.SignupRequest;
+import com.example.shopping.dto.auth.TokenDto;
+import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.repository.address.AddressRepository;
-import com.example.shopping.repository.LoginRepository;
-import com.example.shopping.repository.RoleRepository;
+import com.example.shopping.repository.login.LoginRepository;
+import com.example.shopping.repository.role.RoleRepository;
 import com.example.shopping.repository.user.UserRepository;
 import com.example.shopping.security.JwtTokenProvider;
+import com.example.shopping.service.error.ErrorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,13 +37,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final ErrorService errorService;
 
     private static final String TOKEN_PREFIX = "Bearer ";
 
 
     // 회원가입
     @Transactional
-    public GlobalResponse signup(SignupRequest signupRequest) {
+    public CommonResponse signup(SignupRequest signupRequest) {
         String email = signupRequest.getEmail();
         String password = signupRequest.getPassword();
         String phoneNumber = signupRequest.getPhoneNumber();
@@ -63,8 +63,14 @@ public class AuthService {
 
         userRepository.save(user);
 
-        User userFound = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            return errorService.createErrorResponse("회원 가입에 실패했습니다.", HttpStatus.NOT_FOUND, null);
+        }
+
+        User userFound = userOptional.get();
+
 
         addressRepository.save(
                 Address.builder()
@@ -75,28 +81,27 @@ public class AuthService {
                         .isDefault(true)
                         .build());
 
-        // 역할 enum 교체 해야함
         roleRepository.save(
                 Role.builder()
                         .user(userFound)
-                        .name("ROLE_USER")
+                        .name(RoleType.ROLE_USER.name())
                         .build());
 
-        return GlobalResponse.builder()
-                .status("success")
-                .message("회원가입에 성공했습니다.").build();
+        return errorService.createSuccessResponse("회원가입에 성공했습니다.", HttpStatus.CREATED, null);
     }
 
 
     // 회원 가입 이메일 중복 확인
-    public boolean emailExists(String email) {
-        return userRepository.existsByEmail(email);
+    public CommonResponse emailExists(String email) {
+        boolean isExists = userRepository.existsByEmail(email);
+        if (isExists) return errorService.createErrorResponse("중복된 이메일 입니다.", HttpStatus.BAD_REQUEST, null);
+        else return errorService.createSuccessResponse("사용 가능한 이메일 입니다.", HttpStatus.OK, null);
     }
 
 
     // 로그인
     @Transactional
-    public Token login(LoginRequest loginRequest) {
+    public CommonResponse login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
@@ -106,17 +111,23 @@ public class AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new NotFoundException("해당 유저를 찾을 수 없습니다."));
+
+            Optional<User> userOptional = userRepository.findByEmail(email);
+
+            if (userOptional.isEmpty()) {
+                return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+            }
+
+            User user = userOptional.get();
 
             Integer userId = user.getId();
 
             Login loginFound = loginRepository.findByUserId(userId);
 
             List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
-            Token token = jwtTokenProvider.createToken(email, roles);
+            TokenDto tokenDto = jwtTokenProvider.createToken(userId, email, roles);
 
-            String refreshToken = token.getRefreshToken();
+            String refreshToken = tokenDto.getRefreshToken();
 
             if (loginFound == null) {
                 loginRepository.save(
@@ -129,46 +140,59 @@ public class AuthService {
                 loginFound.setRefreshToken(refreshToken);
             }
 
-            // 추후 로그인 실패 카운트 증가 코드 작성
 
-            return token;
+            return errorService.createSuccessResponse("로그인에 성공했습니다.", HttpStatus.CREATED, tokenDto);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new NotAcceptException("로그인 할 수 없습니다.");
+            return errorService.createErrorResponse("로그인 할 수 없습니다.", HttpStatus.NOT_ACCEPTABLE, null);
         }
     }
 
 
     // 로그아웃
     @Transactional
-    public void logout(String requestAccessToken) {
+    public CommonResponse logout(String requestAccessToken) {
         String email = resolveTokenEmail(requestAccessToken);
 
-        Login login = loginRepository.findByUserEmail(email)
-                .orElseThrow(() -> new NotFoundException("해당 유저를 찾을 수 없습니다."));
+        Optional<Login> loginOptional = loginRepository.findByUserEmail(email);
+
+        if (loginOptional.isEmpty()) return errorService.createErrorResponse("로그아웃에 실패했습니다.", HttpStatus.NOT_FOUND, null);
+
+        Login login = loginOptional.get();
 
         login.setRefreshToken(null);
 
+        return errorService.createSuccessResponse("로그아웃에 성공했습니다.", HttpStatus.OK, null);
     }
 
     // AT가 만료 검증
-    public boolean validate(String requestAccessToken) {
+    public CommonResponse validate(String requestAccessToken) {
         String accessToken = resolveToken(requestAccessToken);
-        return jwtTokenProvider.validateAccessTokenOnlyExpired(accessToken);  // true = 재발급
+        boolean isValidate = jwtTokenProvider.validateAccessTokenOnlyExpired(accessToken);
+
+        if (isValidate) return errorService.createErrorResponse("토큰 재발급이 필요하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+        else return errorService.createSuccessResponse("토큰 재발급이 필요합니다.", HttpStatus.OK, null);
+
+
     }
 
 
     // 토큰 재발급: validate method가 ture 반환 때만 사용 -> AT, RT 재발급
     @Transactional
-    public Token reissue(String requestAccessToken) {
+    public CommonResponse reissue(String requestAccessToken) {
         String email = resolveTokenEmail(requestAccessToken);
         String accessToken = resolveToken(requestAccessToken);
 
         Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("이메일에 해당하는 유저가 없습니다."));
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        }
+
+        User user = userOptional.get();
 
         Integer userId = user.getId();
 
@@ -177,21 +201,21 @@ public class AuthService {
         String foundRefreshToken = login.getRefreshToken();
 
         if (foundRefreshToken == null) { // 토큰이 없을 때
-            return null; // 재로그인 요청
+            return errorService.createErrorResponse("토큰이 없습니다. 재로그인 해주세요.", HttpStatus.NOT_FOUND, null); // 재로그인 요청
         }
 
         if (!jwtTokenProvider.validateRefreshToken(foundRefreshToken)) { // 토큰이 유효하지 않을 때
-            return null; // 재로그인 요청
+            return errorService.createErrorResponse("토큰이 유효하지 않습니다. 재로그인 해주세요.", HttpStatus.UNAUTHORIZED, null); // 재로그인 요청
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
-        Token token = jwtTokenProvider.createToken(email, roles);
+        TokenDto tokenDto = jwtTokenProvider.createToken(userId, email, roles);
 
-        String refreshToken = token.getRefreshToken();
+        String refreshToken = tokenDto.getRefreshToken();
         login.setRefreshToken(refreshToken);
-        return token;
+        return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
     }
 
     // "Bearer {AT}" 에서 {AT} 추출

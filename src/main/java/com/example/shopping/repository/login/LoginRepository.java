@@ -1,4 +1,4 @@
-package com.example.shopping.repository;
+package com.example.shopping.repository.login;
 
 import com.example.shopping.domain.Login;
 import org.springframework.data.jpa.repository.JpaRepository;
