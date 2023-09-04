@@ -1,4 +1,4 @@
-package com.example.shopping.dto;
+package com.example.shopping.dto.auth;
 
 import lombok.Getter;
 

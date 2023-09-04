@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                    .antMatchers("/resources/static/**", "/api/v1/user/**", "/api/v1/cart/**").permitAll()
+                .antMatchers("/resources/static/**", "/api/v1/*").permitAll()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
@@ -57,10 +57,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(""));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowCredentials(true); // token 주고 받을 때,
         configuration.addExposedHeader("ACCESS-TOKEN"); // access-token
-        configuration.addExposedHeader("REFRESH-TOKEN"); // refresh-token
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setMaxAge(3600L);

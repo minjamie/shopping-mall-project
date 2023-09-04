@@ -1,8 +1,8 @@
 package com.example.shopping.security;
 
-import com.example.shopping.dto.Token;
+import com.example.shopping.dto.auth.TokenDto;
+import com.example.shopping.service.error.ErrorService;
 import io.jsonwebtoken.*;
-import com.example.shopping.repository.user.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,9 +30,11 @@ import java.util.List;
 public class JwtTokenProvider implements InitializingBean {
 
     private final UserDetailsService userDetailsService;
+    private final ErrorService errorService;
 
     private static final String AUTHORITIES_KEY = "roles";
     private static final String EMAIL_KEY = "email";
+    private static final String USER_ID = "userId";
     public static final String TOKEN_PREFIX = "Bearer ";
 
 
@@ -64,7 +66,7 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // AT, RT 생성
-    public Token createToken(String email, List<String> authorities) {
+    public TokenDto createToken(Integer userId, String email, List<String> authorities) {
         Date now = new Date();
 
         String accessToken = Jwts.builder()
@@ -74,6 +76,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .setExpiration(new Date(now.getTime() + accessTokenValidityInSeconds))
                 .setSubject("access-token")
                 .claim(EMAIL_KEY, email)
+                .claim(USER_ID, userId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
@@ -87,7 +90,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
 
-        return new Token(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken);
     }
 
     // 토큰 정보 추출
@@ -110,6 +113,10 @@ public class JwtTokenProvider implements InitializingBean {
 
     public String getUserEmail(String token) {
        return getClaims(token).get(EMAIL_KEY).toString();
+    }
+
+    public Integer getUserId(String token) {
+        return (Integer) getClaims(token).get(USER_ID);
     }
 
     public long getTokenExpirationTime(String token) {
