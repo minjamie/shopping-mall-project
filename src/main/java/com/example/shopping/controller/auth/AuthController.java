@@ -7,6 +7,7 @@ import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.dto.common.ResultDto;
 import com.example.shopping.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class AuthController {
     private final AuthService authService;
     public static final String TOKEN_PREFIX = "Bearer ";
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/sign")
     public ResponseEntity<ResultDto<Void>>  signup(@RequestBody SignupRequest signupRequest) {
         CommonResponse signCommonResponse = authService.signup(signupRequest);
@@ -28,6 +30,7 @@ public class AuthController {
     }
 
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/login")
     public ResponseEntity<ResultDto<Void>> login(@RequestBody LoginRequest loginRequest,
                                                      HttpServletResponse httpServletResponse) {
@@ -42,7 +45,7 @@ public class AuthController {
         return ResponseEntity.status(loginCommonResponse.getHttpStatus()).body(result);
     }
 
-
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/sign/{email}/exists")
     public ResponseEntity<ResultDto<Void>> emailExists(@PathVariable String email) {
         CommonResponse existsCommonResponse = authService.emailExists(email);
@@ -50,7 +53,7 @@ public class AuthController {
         return ResponseEntity.status(existsCommonResponse.getHttpStatus()).body(result);
     }
 
-
+    @ResponseStatus(HttpStatus.OK)
     @PostMapping("/logout")
     public ResponseEntity<ResultDto<Void>> logout(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
         CommonResponse logoutCommonResponse = authService.logout(requestAccessToken);
@@ -59,6 +62,7 @@ public class AuthController {
         return ResponseEntity.status(logoutCommonResponse.getHttpStatus()).body(result);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @PostMapping("/validate")
     public ResponseEntity<ResultDto<Void>> validate(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
 
@@ -67,6 +71,7 @@ public class AuthController {
         return ResponseEntity.status(validateCommonResponse.getHttpStatus()).body(result);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/reissue")
     public ResponseEntity<ResultDto<Void>> reissue(@RequestHeader("ACCESS-TOKEN") String requestAccessToken,
                                                        HttpServletResponse httpServletResponse) {
