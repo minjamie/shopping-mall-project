@@ -1,7 +1,7 @@
 package com.example.shopping.security;
 
+import com.example.shopping.dto.auth.AuthInfoUserId;
 import com.example.shopping.dto.auth.TokenDto;
-import com.example.shopping.service.error.ErrorService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -30,7 +30,6 @@ import java.util.List;
 public class JwtTokenProvider implements InitializingBean {
 
     private final UserDetailsService userDetailsService;
-    private final ErrorService errorService;
 
     private static final String AUTHORITIES_KEY = "roles";
     private static final String EMAIL_KEY = "email";
@@ -112,11 +111,11 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     public String getUserEmail(String token) {
-       return getClaims(token).get(EMAIL_KEY).toString();
+        return getClaims(token).get(EMAIL_KEY).toString();
     }
 
-    public Integer getUserId(String token) {
-        return (Integer) getClaims(token).get(USER_ID);
+    public Object getUserId(String token) {
+        return AuthInfoUserId.of((Integer) getClaims(token).get(USER_ID));
     }
 
     public long getTokenExpirationTime(String token) {
@@ -149,7 +148,6 @@ public class JwtTokenProvider implements InitializingBean {
 
 
     // filter에서 사용
-    // TODO: 로그아웃 상황 추가 해야함
     // access-token 검증
     public boolean validateAccessToken(String accessToken) {
         try {
