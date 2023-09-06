@@ -60,7 +60,6 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(""));
         configuration.setAllowCredentials(true); // token 주고 받을 때,
         configuration.addExposedHeader("ACCESS-TOKEN"); // access-token
-        configuration.addExposedHeader("REFRESH-TOKEN"); // refresh-token
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setMaxAge(3600L);
