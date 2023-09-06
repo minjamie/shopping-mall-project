@@ -6,6 +6,9 @@ import com.example.shopping.dto.auth.TokenDto;
 import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.dto.common.ResultDto;
 import com.example.shopping.service.auth.AuthService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +19,14 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
+@Api(tags = "Auth APIs")
 public class AuthController {
 
     private final AuthService authService;
     public static final String TOKEN_PREFIX = "Bearer ";
 
+
+    @ApiOperation(value = "회원가입 API", notes = "유저 회원 가입 진행")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/sign")
     public ResponseEntity<ResultDto<Void>>  signup(@RequestBody SignupRequest signupRequest) {
@@ -30,6 +36,7 @@ public class AuthController {
     }
 
 
+    @ApiOperation(value = "로그인 API", notes = "유저 로그인 진행")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/login")
     public ResponseEntity<ResultDto<Void>> login(@RequestBody LoginRequest loginRequest,
@@ -45,14 +52,16 @@ public class AuthController {
         return ResponseEntity.status(loginCommonResponse.getHttpStatus()).body(result);
     }
 
+    @ApiOperation(value = "이메일 중복 확인 API", notes = "유저의 이메일 중복을 확인")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/sign/{email}/exists")
-    public ResponseEntity<ResultDto<Void>> emailExists(@PathVariable String email) {
+    public ResponseEntity<ResultDto<Void>> emailExists(@ApiParam(name = "email", value = "유저 이메일", example = "abcd@gmail.com") @PathVariable String email) {
         CommonResponse existsCommonResponse = authService.emailExists(email);
         ResultDto<Void> result = ResultDto.in(existsCommonResponse.getStatus(), existsCommonResponse.getMessage());
         return ResponseEntity.status(existsCommonResponse.getHttpStatus()).body(result);
     }
 
+    @ApiOperation(value = "로그아웃 API", notes = "유저 로그아웃 진행")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/logout")
     public ResponseEntity<ResultDto<Void>> logout(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
@@ -62,6 +71,7 @@ public class AuthController {
         return ResponseEntity.status(logoutCommonResponse.getHttpStatus()).body(result);
     }
 
+    @ApiOperation(value = "토큰 검증 API", notes = "토큰 만료 시간 확인")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/validate")
     public ResponseEntity<ResultDto<Void>> validate(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
@@ -71,6 +81,8 @@ public class AuthController {
         return ResponseEntity.status(validateCommonResponse.getHttpStatus()).body(result);
     }
 
+
+    @ApiOperation(value = "토큰 재발급 API", notes = "토큰 재발급 진행")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/reissue")
     public ResponseEntity<ResultDto<Void>> reissue(@RequestHeader("ACCESS-TOKEN") String requestAccessToken,

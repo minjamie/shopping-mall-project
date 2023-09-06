@@ -25,7 +25,9 @@ public class Address {
 
     @Column(nullable = true)
     private String detail;
+
     private Boolean isOrder;
+
     @Column(name = "zip_code")
     private String zieCode;
 

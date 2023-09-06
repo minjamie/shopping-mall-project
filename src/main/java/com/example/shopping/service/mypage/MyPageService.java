@@ -42,6 +42,10 @@ public class MyPageService {
 
         User user = userOptional.get();
 
+        if (user.isWithdrawal()) {
+            return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.NOT_FOUND, null);
+        }
+
         Integer requestUserId = user.getId();
 
         if (!requestUserId.equals(userId)) {
@@ -74,6 +78,8 @@ public class MyPageService {
 
     }
 
+    
+    // 회원 탈퇴
     @Transactional
     public CommonResponse withdrawal(String requestAccessToken, Integer userId) {
         String email = tokenService.resolveTokenEmail(requestAccessToken);
@@ -92,10 +98,7 @@ public class MyPageService {
             return errorService.createErrorResponse("유저의 정보가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED, null);
         }
 
-        loginRepository.deleteByUserId(requestUserId);
-        addressRepository.deleteByUserId(requestUserId);
-        roleRepository.deleteByUserId(requestUserId);
-        userRepository.deleteById(requestUserId);
+        user.setWithdrawal(true);
 
         return errorService.createSuccessResponse("회원탈퇴에 성공했습니다.", HttpStatus.OK, null);
     }
