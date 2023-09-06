@@ -32,6 +32,6 @@ public class Address {
     private String zieCode;
 
 
-    @Column(nullable = true, columnDefinition = "DEFAULT false")
+    @Column(nullable = true)
     private Boolean isDefault;
 }

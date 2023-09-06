@@ -114,7 +114,7 @@ public class JwtTokenProvider implements InitializingBean {
         return getClaims(token).get(EMAIL_KEY).toString();
     }
 
-    public Object getUserId(String token) {
+    public AuthInfoUserId getUserId(String token) {
         return AuthInfoUserId.of((Integer) getClaims(token).get(USER_ID));
     }
 
