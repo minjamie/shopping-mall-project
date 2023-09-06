@@ -4,6 +4,8 @@ package com.example.shopping.controller.mypage;
 import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.dto.common.ResultDto;
 import com.example.shopping.service.mypage.MyPageService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,20 +18,22 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
+    @ApiOperation(value = "내 정보 조회 API", notes = "내 정보를 조회")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}")
     public ResponseEntity<ResultDto<Void>> myInformation(@RequestHeader("ACCESS-TOKEN") String requestAccessToken,
-                                                         @PathVariable Integer userId) {
+                                                         @ApiParam(name = "id", value = "userId", example = "1") @PathVariable Integer userId) {
         CommonResponse myInformationCommonResponse = myPageService.myInformation(requestAccessToken, userId);
         ResultDto<Void> result = ResultDto.in(myInformationCommonResponse.getStatus(), myInformationCommonResponse.getMessage());
 
         return ResponseEntity.status(myInformationCommonResponse.getHttpStatus()).body(result);
     }
 
+    @ApiOperation(value = "회원탈퇴 API", notes = "유저 회원탈퇴 진행")
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{userId}/withdrawal")
+    @PatchMapping("/{userId}/withdrawal")
     public ResponseEntity<ResultDto<Void>> withdrawal(@RequestHeader("ACCESS-TOKEN") String requestAccessToken,
-                                                      @PathVariable Integer userId) {
+                                                      @ApiParam(name = "id", value = "userId", example = "1") @PathVariable Integer userId) {
         CommonResponse withdrawalCommonResponse = myPageService.withdrawal(requestAccessToken, userId);
         ResultDto<Void> result = ResultDto.in(withdrawalCommonResponse.getStatus(), withdrawalCommonResponse.getMessage());
 

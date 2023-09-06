@@ -122,6 +122,10 @@ public class AuthService {
 
             User user = userOptional.get();
 
+            if (user.isWithdrawal()) {
+                return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.NOT_FOUND, null);
+            }
+
             Integer userId = user.getId();
 
             Login loginFound = loginRepository.findByUserId(userId);
@@ -196,6 +200,7 @@ public class AuthService {
 
         User user = userOptional.get();
 
+
         Integer userId = user.getId();
 
         Login login = loginRepository.findByUserId(userId);
@@ -219,8 +224,4 @@ public class AuthService {
         login.setRefreshToken(refreshToken);
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
     }
-
-
-
-
 }

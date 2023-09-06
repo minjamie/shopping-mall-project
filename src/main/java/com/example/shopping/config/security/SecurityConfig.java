@@ -1,4 +1,4 @@
-package com.example.shopping.config;
+package com.example.shopping.config.security;
 
 import com.example.shopping.security.JwtAuthenticationFilter;
 import com.example.shopping.security.JwtTokenProvider;
