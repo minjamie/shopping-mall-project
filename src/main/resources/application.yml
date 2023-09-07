@@ -8,6 +8,10 @@ spring:
     activate:
       on-profile: prod
 
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   datasource:
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}

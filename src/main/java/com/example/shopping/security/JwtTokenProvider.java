@@ -89,7 +89,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
 
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken, userId);
     }
 
     // 토큰 정보 추출
@@ -117,7 +117,6 @@ public class JwtTokenProvider implements InitializingBean {
     public AuthInfoUserId getUserId(String token) {
         return AuthInfoUserId.of((Integer) getClaims(token).get(USER_ID));
     }
-
     public long getTokenExpirationTime(String token) {
         return getClaims(token).getExpiration().getTime();
     }

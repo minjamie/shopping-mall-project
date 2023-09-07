@@ -24,6 +24,7 @@ public class TokenService {
         return null;
     }
 
+
     public String resolveToken(String accessTokenInHeader) {
         if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
             return accessTokenInHeader.substring(TOKEN_PREFIX.length());

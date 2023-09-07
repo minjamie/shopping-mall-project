@@ -13,8 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,14 +42,20 @@ public class AuthController {
     @ApiOperation(value = "로그인 API", notes = "유저 로그인 진행")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/login")
-    public ResponseEntity<ResultDto<Void>> login(@RequestBody LoginRequest loginRequest,
-                                                     HttpServletResponse httpServletResponse) {
+    public ResponseEntity<ResultDto<Map>> login(@RequestBody LoginRequest loginRequest,
+                                                HttpServletResponse httpServletResponse) {
         CommonResponse loginCommonResponse = authService.login(loginRequest);
 
-        ResultDto<Void> result = ResultDto.in(loginCommonResponse.getStatus(), loginCommonResponse.getMessage());
+        ResultDto<Map> result = ResultDto.in(
+                loginCommonResponse.getStatus(),
+                loginCommonResponse.getMessage());
         TokenDto tokenDto = (TokenDto) loginCommonResponse.getData();
 
+        Map<String, Integer> userId = new HashMap<>();
+
         if (tokenDto != null) {
+            userId.put("userId", tokenDto.getUserId());
+            result.setData(userId);
             httpServletResponse.setHeader("ACCESS-TOKEN", TOKEN_PREFIX + tokenDto.getAccessToken());
         }
         return ResponseEntity.status(loginCommonResponse.getHttpStatus()).body(result);
@@ -64,7 +73,7 @@ public class AuthController {
     @ApiOperation(value = "로그아웃 API", notes = "유저 로그아웃 진행")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/logout")
-    public ResponseEntity<ResultDto<Void>> logout(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
+    public ResponseEntity<ResultDto<Void>> logout(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
         CommonResponse logoutCommonResponse = authService.logout(requestAccessToken);
         ResultDto<Void> result = ResultDto.in(logoutCommonResponse.getStatus(), logoutCommonResponse.getMessage());
 
@@ -74,7 +83,7 @@ public class AuthController {
     @ApiOperation(value = "토큰 검증 API", notes = "토큰 만료 시간 확인")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/validate")
-    public ResponseEntity<ResultDto<Void>> validate(@RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
+    public ResponseEntity<ResultDto<Void>> validate(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken) {
 
         CommonResponse validateCommonResponse = authService.validate(requestAccessToken);
         ResultDto<Void> result = ResultDto.in(validateCommonResponse.getStatus(), validateCommonResponse.getMessage());
@@ -85,7 +94,7 @@ public class AuthController {
     @ApiOperation(value = "토큰 재발급 API", notes = "토큰 재발급 진행")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/reissue")
-    public ResponseEntity<ResultDto<Void>> reissue(@RequestHeader("ACCESS-TOKEN") String requestAccessToken,
+    public ResponseEntity<ResultDto<Void>> reissue(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken,
                                                        HttpServletResponse httpServletResponse) {
         CommonResponse reissueCommonResponse = authService.reissue(requestAccessToken);
 

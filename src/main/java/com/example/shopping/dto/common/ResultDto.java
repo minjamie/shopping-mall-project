@@ -18,4 +18,5 @@ public class ResultDto<Data> {
 
     @ApiModelProperty(example = "응답 데이터")
     private Data data;
+
 }
