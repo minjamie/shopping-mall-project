@@ -1,7 +1,8 @@
 package com.example.shopping.security;
 
-import com.example.shopping.dto.Token;
-import com.example.shopping.repository.UserRepository;
+import com.example.shopping.dto.auth.AuthInfoUserId;
+import com.example.shopping.dto.auth.TokenDto;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -29,10 +30,10 @@ import java.util.List;
 public class JwtTokenProvider implements InitializingBean {
 
     private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
 
     private static final String AUTHORITIES_KEY = "roles";
     private static final String EMAIL_KEY = "email";
+    private static final String USER_ID = "userId";
     public static final String TOKEN_PREFIX = "Bearer ";
 
 
@@ -64,7 +65,7 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // AT, RT 생성
-    public Token createToken(String email, List<String> authorities) {
+    public TokenDto createToken(Integer userId, String email, List<String> authorities) {
         Date now = new Date();
 
         String accessToken = Jwts.builder()
@@ -74,6 +75,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .setExpiration(new Date(now.getTime() + accessTokenValidityInSeconds))
                 .setSubject("access-token")
                 .claim(EMAIL_KEY, email)
+                .claim(USER_ID, userId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
@@ -87,7 +89,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
 
-        return new Token(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken, userId);
     }
 
     // 토큰 정보 추출
@@ -109,20 +111,42 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     public String getUserEmail(String token) {
-       return getClaims(token).get(EMAIL_KEY).toString();
+        return getClaims(token).get(EMAIL_KEY).toString();
     }
 
+    public AuthInfoUserId getUserId(String token) {
+        return AuthInfoUserId.of((Integer) getClaims(token).get(USER_ID));
+    }
     public long getTokenExpirationTime(String token) {
         return getClaims(token).getExpiration().getTime();
     }
 
-    // TODO: refresh-token 검증
-    public boolean validateRefreshToken(String refreshToken) { // 회원이 탈퇴한 경우
+    // refresh-token 검증
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(signingKey)
+                    .build()
+                    .parseClaimsJws(refreshToken);
+            return true;
+        } catch (SignatureException e) {
+            log.error("Invalid JWT signature.");
+        } catch (MalformedJwtException e) {
+            log.error("Invalid JWT token.");
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token.");
+        } catch (UnsupportedJwtException e) {
+            log.error("Unsupported JWT token.");
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty.");
+        } catch (NullPointerException e){
+            log.error("JWT Token is empty.");
+        }
         return false;
     }
 
+
     // filter에서 사용
-    // TODO: NFE 방지, 로그아웃 상황 추가 해야함
     // access-token 검증
     public boolean validateAccessToken(String accessToken) {
         try {

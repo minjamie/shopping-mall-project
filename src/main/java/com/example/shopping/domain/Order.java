@@ -22,14 +22,11 @@ public class Order extends BaseTimeEntity {
 
     private Integer count;
 
-    @Column(name = "delivery_name")
-    private String deliveryName;
+    @OneToOne
+    @JoinColumn(referencedColumnName = "id")
+    private Delivery delivery;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
 }

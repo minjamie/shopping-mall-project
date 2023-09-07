@@ -1,11 +1,9 @@
 package com.example.shopping.domain;
-// TODO: 민재
 
+import com.example.shopping.domain.common.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -13,17 +11,15 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "options")
-public class Option {
+@Table(name = "brands")
+public class Brand extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
-
-    private String category;
 
     private String name;
 
-    @OneToMany(mappedBy = "option")
-    List<ProductOption> productOptions = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }

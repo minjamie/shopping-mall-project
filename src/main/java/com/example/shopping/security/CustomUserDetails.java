@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @ToString
 public class CustomUserDetails implements UserDetails {
-
     private String name;
     private String email;
     private String password;

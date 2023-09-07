@@ -18,6 +18,5 @@ public class Category {
     private Integer id;
 
     @Column(nullable = false, length = 50)
-    private String name; //카테고리명
-
+    private String name;
 }

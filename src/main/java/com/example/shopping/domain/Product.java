@@ -35,9 +35,6 @@ public class Product extends BaseTimeEntity {
     private Integer discount; // 할인금액
 
     @Column(nullable = false)
-    private Integer stock; // 재고
-
-    @Column(nullable = false)
     private Boolean isDiscount; // 할인여부
 
     @Column(nullable = false)
@@ -52,14 +49,9 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-/*
-    @ManyToMany
-    @JoinTable(name = "product_option",
-            joinColumns = @JoinColumn(name="product_id"),
-            inverseJoinColumns = @JoinColumn(name = "option_id")
-    )
-    private List<Option> options = new ArrayList<>();
+    @OneToMany(mappedBy = "product")
+    private List<ProductOption> productOptions = new ArrayList<>();
 
-*/
-
+    @OneToMany(mappedBy = "product")
+    private List<Brand> brands = new ArrayList<>();
 }

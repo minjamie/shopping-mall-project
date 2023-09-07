@@ -1,4 +1,4 @@
-package com.example.shopping.config;
+package com.example.shopping.config.security;
 
 import com.example.shopping.security.JwtAuthenticationFilter;
 import com.example.shopping.security.JwtTokenProvider;
@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                    .antMatchers("/resources/static/**", "/v1/api/*").permitAll()
+                .antMatchers("/resources/static/**", "/api/v1/*").permitAll()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
@@ -57,7 +57,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(""));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowCredentials(true); // token 주고 받을 때,
         configuration.addExposedHeader("ACCESS-TOKEN"); // access-token
         configuration.addAllowedHeader("*");
