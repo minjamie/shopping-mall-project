@@ -40,21 +40,10 @@ jobs:
     # Github Repository Secrets 를 통해 환경 변수 파일을 생성한다.
     - name: Generate Environment Variables File for Production
       run: |
-        echo "$DATABASE_NAME" >> ./src/main/resources/application-prod.yml
-        echo "$DATABASE_PASSWORD" >> ./src/main/resources/application-prod.yml
-        echo "$DATABASE_USERNAME" >> ./src/main/resources/application-prod.yml
-        echo "$ENDPOINT" >> ./src/main/resources/application-prod.yml
-        echo "$JWT_SECRET_KEY" >> ./src/main/resources/application-prod.yml
-        echo "$ACCESS_TOKEN_SECONDS" >> ./src/main/resources/application-prod.yml
-        echo "$REFRESH_TOKEN_SECONDS" >> ./src/main/resources/application-prod.yml
+#        echo "$APPLICATION" >> ./src/main/resources/application-prod.yml
+#        
       env:
-        DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-        DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-        ENDPOINT: ${{ secrets.ENDPOINT }}
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-        ACCESS_TOKEN_SECONDS: ${{ secrets.ACCESS_TOKEN_SECONDS }}
-        REFRESH_TOKEN_SECONDS: ${{ secrets.REFRESH_TOKEN_SECONDS }}
+        APPLICATION: ${{ secrets.APPLICATION }}
       
       # (3) Gradle build (Test 제외)
     - name: Build with Gradle
