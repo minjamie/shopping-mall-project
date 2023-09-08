@@ -51,10 +51,10 @@ jobs:
         DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
         DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-        ENDPOINT: ${{ secrets.DATABASE_NAME }}
-        JWT_SECRET_KEY: ${{ secrets.DATABASE_NAME }}
-        ACCESS_TOKEN_SECONDS: ${{ secrets.DATABASE_NAME }}
-        REFRESH_TOKEN_SECONDS: ${{ secrets.DATABASE_NAME }}
+        ENDPOINT: ${{ secrets.ENDPOINT }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+        ACCESS_TOKEN_SECONDS: ${{ secrets.ACCESS_TOKEN_SECONDS }}
+        REFRESH_TOKEN_SECONDS: ${{ secrets.REFRESH_TOKEN_SECONDS }}
       
       # (3) Gradle build (Test 제외)
     - name: Build with Gradle
