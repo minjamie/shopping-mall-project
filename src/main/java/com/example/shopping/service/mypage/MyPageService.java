@@ -45,7 +45,7 @@ public class MyPageService {
         User user = userOptional.get();
 
         if (user.isWithdrawal()) {
-            return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.NOT_FOUND, null);
+            return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
         }
 
         Integer requestUserId = user.getId();
