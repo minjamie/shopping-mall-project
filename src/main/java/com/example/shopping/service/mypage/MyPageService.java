@@ -15,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,28 +55,24 @@ public class MyPageService {
         }
 
 
-        Optional<Address> addressOptional = addressRepository.findByUserId(requestUserId);
+        List<Address> addressList = addressRepository.findAllByUserId(requestUserId);
 
-        if (addressOptional.isEmpty()) {
+        if (addressList.isEmpty()) {
             return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
         }
 
-        Address address = addressOptional.get();
+        MyPageResponse myPageResponse = MyPageResponse.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .sex(user.getSex())
+                .profileImgUrl(user.getProfileImgUrl())
+                .introduce(user.getIntroduce())
+                .mainAddress(addressList.stream().map(Address::getMain).collect(Collectors.toList()))
+                .detailAddress(addressList.stream().map(Address::getDetail).collect(Collectors.toList()))
+                .build();
 
-
-        return errorService.createSuccessResponse(
-                "내 정보 조회에 성공했습니다.",
-                HttpStatus.OK,
-                MyPageResponse.builder()
-                    .name(user.getName())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .sex(user.getSex())
-                    .profileImgUrl(user.getProfileImgUrl())
-                    .introduce(user.getIntroduce())
-                    .mainAddress(address.getMain())
-                    .detailAddress(address.getDetail())
-                    .build());
+        return errorService.createSuccessResponse("내 정보 조회에 성공했습니다.", HttpStatus.OK, myPageResponse);
 
     }
 
