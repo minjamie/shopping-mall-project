@@ -3,6 +3,7 @@ package com.example.shopping.controller.mypage;
 
 import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.dto.common.ResultDto;
+import com.example.shopping.dto.mypage.MyPageResponse;
 import com.example.shopping.service.mypage.MyPageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,10 +25,11 @@ public class MyPageController {
     @ApiOperation(value = "내 정보 조회 API", notes = "내 정보를 조회")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}")
-    public ResponseEntity<ResultDto<Void>> myInformation(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken,
-                                                         @ApiParam(name = "id", value = "userId", example = "1") @PathVariable Integer userId) {
+    public ResponseEntity<ResultDto<MyPageResponse>> myInformation(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken,
+                                                                   @ApiParam(name = "id", value = "userId", example = "1") @PathVariable Integer userId) {
         CommonResponse myInformationCommonResponse = myPageService.myInformation(requestAccessToken, userId);
-        ResultDto<Void> result = ResultDto.in(myInformationCommonResponse.getStatus(), myInformationCommonResponse.getMessage());
+        ResultDto<MyPageResponse> result = ResultDto.in(myInformationCommonResponse.getStatus(), myInformationCommonResponse.getMessage());
+        result.setData((MyPageResponse) myInformationCommonResponse.getData());
 
         return ResponseEntity.status(myInformationCommonResponse.getHttpStatus()).body(result);
     }
