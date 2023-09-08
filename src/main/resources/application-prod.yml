@@ -8,6 +8,10 @@ spring:
     activate:
       on-profile: prod
 
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   datasource:
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
@@ -16,7 +20,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -28,6 +32,6 @@ jwt:
   secretKey: ${JWT_SECRET_KEY}
   access-token-validity-in-seconds: ${ACCESS_TOKEN_SECONDS}
   refresh-token-validity-in-seconds: ${REFRESH_TOKEN_SECONDS}
-
-logging:
-  config: classpath:logback-spring.xml
+#
+#logging:
+#  config: classpath:logback-spring.xml

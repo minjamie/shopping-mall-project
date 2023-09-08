@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @Builder
@@ -16,6 +18,6 @@ public class MyPageResponse {
     private String sex;
     private String profileImgUrl;
     private String introduce;
-    private String mainAddress;
-    private String detailAddress;
+    private List<String> mainAddress;
+    private List<String> detailAddress;
 }

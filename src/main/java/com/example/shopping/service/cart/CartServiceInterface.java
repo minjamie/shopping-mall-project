@@ -7,5 +7,5 @@ import com.example.shopping.dto.cart.UpdatedCartRequest;
 public interface CartServiceInterface {
     CommonResponse addCart(Integer productId, AddCartRequest addCartRequest, Integer UserId);
 
-    CommonResponse updateCart(Integer productId, UpdatedCartRequest updateCartRequest, Integer UserId)
+    CommonResponse updateCart(Integer productId, UpdatedCartRequest updateCartRequest, Integer UserId);
 }
