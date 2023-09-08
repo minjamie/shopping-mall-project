@@ -37,7 +37,26 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    # (3) Gradle build (Test 제외)
+    # Github Repository Secrets 를 통해 환경 변수 파일을 생성한다.
+    - name: Generate Environment Variables File for Production
+      run: |
+        echo "DATABASE_NAME=$DATABASE_NAME" >> ./src/main/resources/env.yml
+        echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> ./src/main/resources/env.yml
+        echo "DATABASE_USERNAME=$DATABASE_USERNAME" >> ./src/main/resources/env.yml
+        echo "ENDPOINT=$ENDPOINT" >> ./src/main/resources/env.yml
+        echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> ./src/main/resources/env.yml
+        echo "ACCESS_TOKEN_SECONDS=$ACCESS_TOKEN_SECONDS" >> ./src/main/resources/env.yml
+        echo "REFRESH_TOKEN_SECONDS=$REFRESH_TOKEN_SECONDS" >> ./src/main/resources/env.yml
+      env:
+        DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+        ENDPOINT: ${{ secrets.DATABASE_NAME }}
+        JWT_SECRET_KEY: ${{ secrets.DATABASE_NAME }}
+        ACCESS_TOKEN_SECONDS: ${{ secrets.DATABASE_NAME }}
+        REFRESH_TOKEN_SECONDS: ${{ secrets.DATABASE_NAME }}
+      
+      # (3) Gradle build (Test 제외)
     - name: Build with Gradle
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
@@ -50,6 +69,7 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
 
     # (5) 빌드 결과물을 S3 버킷에 업로드
     - name: Upload to AWS S3
