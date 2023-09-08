@@ -12,6 +12,7 @@ import com.example.shopping.repository.role.RoleRepository;
 import com.example.shopping.repository.user.UserRepository;
 import com.example.shopping.security.JwtTokenProvider;
 import com.example.shopping.service.error.ErrorService;
+import com.example.shopping.service.token.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,8 +39,9 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final ErrorService errorService;
+    private final TokenService tokenService;
 
-    private static final String TOKEN_PREFIX = "Bearer ";
+
 
 
     // 회원가입
@@ -120,6 +122,13 @@ public class AuthService {
 
             User user = userOptional.get();
 
+            if (user.isWithdrawal()) {
+                return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
+            }
+
+            if (user.getPassword().equals(password)) {
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+            }
             Integer userId = user.getId();
 
             Login loginFound = loginRepository.findByUserId(userId);
@@ -153,7 +162,7 @@ public class AuthService {
     // 로그아웃
     @Transactional
     public CommonResponse logout(String requestAccessToken) {
-        String email = resolveTokenEmail(requestAccessToken);
+        String email = tokenService.resolveTokenEmail(requestAccessToken);
 
         Optional<Login> loginOptional = loginRepository.findByUserEmail(email);
 
@@ -168,7 +177,7 @@ public class AuthService {
 
     // AT가 만료 검증
     public CommonResponse validate(String requestAccessToken) {
-        String accessToken = resolveToken(requestAccessToken);
+        String accessToken = tokenService.resolveToken(requestAccessToken);
         boolean isValidate = jwtTokenProvider.validateAccessTokenOnlyExpired(accessToken);
 
         if (isValidate) return errorService.createErrorResponse("토큰 재발급이 필요하지 않습니다.", HttpStatus.BAD_REQUEST, null);
@@ -178,11 +187,11 @@ public class AuthService {
     }
 
 
-    // 토큰 재발급: validate method가 ture 반환 때만 사용 -> AT, RT 재발급
+    // 토큰 재발급: AT, RT 재발급
     @Transactional
     public CommonResponse reissue(String requestAccessToken) {
-        String email = resolveTokenEmail(requestAccessToken);
-        String accessToken = resolveToken(requestAccessToken);
+        String email = tokenService.resolveTokenEmail(requestAccessToken);
+        String accessToken = tokenService.resolveToken(requestAccessToken);
 
         Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
 
@@ -194,6 +203,7 @@ public class AuthService {
 
         User user = userOptional.get();
 
+
         Integer userId = user.getId();
 
         Login login = loginRepository.findByUserId(userId);
@@ -201,7 +211,7 @@ public class AuthService {
         String foundRefreshToken = login.getRefreshToken();
 
         if (foundRefreshToken == null) { // 토큰이 없을 때
-            return errorService.createErrorResponse("토큰이 없습니다. 재로그인 해주세요.", HttpStatus.NOT_FOUND, null); // 재로그인 요청
+            return errorService.createErrorResponse("토큰이 없습니다. 재로그인 해주세요.", HttpStatus.BAD_REQUEST, null); // 재로그인 요청
         }
 
         if (!jwtTokenProvider.validateRefreshToken(foundRefreshToken)) { // 토큰이 유효하지 않을 때
@@ -217,23 +227,4 @@ public class AuthService {
         login.setRefreshToken(refreshToken);
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
     }
-
-    // "Bearer {AT}" 에서 {AT} 추출
-    // ACCESS-TOKEN에서 user emaill 값 가져오기
-    public String resolveTokenEmail(String accessTokenInHeader) {
-        if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
-            String token = accessTokenInHeader.substring(TOKEN_PREFIX.length());
-            return jwtTokenProvider.getUserEmail(token);
-        }
-        return null;
-    }
-
-    public String resolveToken(String accessTokenInHeader) {
-        if (accessTokenInHeader != null && accessTokenInHeader.startsWith(TOKEN_PREFIX)) {
-            return accessTokenInHeader.substring(TOKEN_PREFIX.length());
-        }
-        return null;
-    }
-
-
 }

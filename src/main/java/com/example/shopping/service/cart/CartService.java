@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,9 +35,8 @@ public class CartService implements CartServiceInterface {
     private final OrderRepository orderRepository;
 
     @Transactional
-    @Override
-    public CommonResponse addCart(Integer productId, AddCartRequest addCartRequest) {
-        Optional<User> userOptional = userRepository.findById(addCartRequest.getUserId());
+    public CommonResponse addCart(Integer productId, AddCartRequest addCartRequest, Integer userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
         User user = userOptional.get();
 
         Optional<Product> productOptional = productRepository.findById(productId);
@@ -67,8 +65,8 @@ public class CartService implements CartServiceInterface {
         }
     }
 
-    public CommonResponse updateCart(Integer cartId, UpdatedCartRequest updateCartRequest) {
-        Optional<User> userOptional = userRepository.findById(updateCartRequest.getUserId());
+    public CommonResponse updateCart(Integer cartId, UpdatedCartRequest updateCartRequest, Integer userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
         User user = userOptional.get();
 
         Optional<Cart> cartOptional = cartRepository.findById(cartId);
@@ -95,8 +93,8 @@ public class CartService implements CartServiceInterface {
 
 
     @Transactional
-    public CommonResponse orderCart(List<Integer> cartIds, OrderCartRequest orderCartRequest) {
-        Pay pay = payRepository.findByUserId(1);
+    public CommonResponse orderCart(List<Integer> cartIds, OrderCartRequest orderCartRequest, Integer userId) {
+        Pay pay = payRepository.findByUserId(userId);
 
         Delivery delivery = new Delivery();
 
