@@ -1,8 +1,9 @@
 package com.example.shopping.domain;
 
+
+import com.example.shopping.domain.Enum.SellStatus;
 import com.example.shopping.domain.common.BaseTimeEntity;
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,8 +32,15 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private String description; // 설명
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SellStatus sellStatus; // 판매상태
+
     @Column
-    private Integer discount; // 할인금액
+    private Integer discountPrice; // 할인금액
+
+    @Column
+    private Integer discountRate; // 할인율
 
     @Column(nullable = false)
     private Boolean isDiscount; // 할인여부
@@ -43,7 +51,9 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer deliveryPrice; // 배송비
 
-    private LocalDateTime saleEndDate; // 할인종료날짜
+    private LocalDateTime saleStartDate; // 할인시작일자
+    private LocalDateTime saleEndDate;   // 할인종료날짜
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)

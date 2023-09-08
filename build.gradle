@@ -44,17 +44,18 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-   // swagger
+    // swagger
     implementation "io.springfox:springfox-boot-starter:3.0.0"
-//    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
-//    implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    implementation 'io.springfox:springfox-swagger2:2.9.2'
 
 
     // mysql
-    runtimeOnly 'mysql:mysql-connector-java:8.0.28'
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
     // mariadb
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
+
+    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 
     // validation
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.7.15'
