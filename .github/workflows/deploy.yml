@@ -40,13 +40,13 @@ jobs:
     # Github Repository Secrets 를 통해 환경 변수 파일을 생성한다.
     - name: Generate Environment Variables File for Production
       run: |
-        echo "DATABASE_NAME=$DATABASE_NAME" >> ./src/main/resources/env.yml
-        echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> ./src/main/resources/env.yml
-        echo "DATABASE_USERNAME=$DATABASE_USERNAME" >> ./src/main/resources/env.yml
-        echo "ENDPOINT=$ENDPOINT" >> ./src/main/resources/env.yml
-        echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> ./src/main/resources/env.yml
-        echo "ACCESS_TOKEN_SECONDS=$ACCESS_TOKEN_SECONDS" >> ./src/main/resources/env.yml
-        echo "REFRESH_TOKEN_SECONDS=$REFRESH_TOKEN_SECONDS" >> ./src/main/resources/env.yml
+        echo "DATABASE_NAME=$DATABASE_NAME" >> ./src/main/resources/application-prod.yml
+        echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> ./src/main/resources/application-prod.yml
+        echo "DATABASE_USERNAME=$DATABASE_USERNAME" >> ./src/main/resources/application-prod.yml
+        echo "ENDPOINT=$ENDPOINT" >> ./src/main/resources/application-prod.yml
+        echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> ./src/main/resources/application-prod.yml
+        echo "ACCESS_TOKEN_SECONDS=$ACCESS_TOKEN_SECONDS" >> ./src/main/resources/application-prod.yml
+        echo "REFRESH_TOKEN_SECONDS=$REFRESH_TOKEN_SECONDS" >> ./src/main/resources/application-prod.yml
       env:
         DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
         DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
