@@ -123,9 +123,12 @@ public class AuthService {
             User user = userOptional.get();
 
             if (user.isWithdrawal()) {
-                return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.NOT_FOUND, null);
+                return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
             }
 
+            if (user.getPassword().equals(password)) {
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+            }
             Integer userId = user.getId();
 
             Login loginFound = loginRepository.findByUserId(userId);
@@ -208,7 +211,7 @@ public class AuthService {
         String foundRefreshToken = login.getRefreshToken();
 
         if (foundRefreshToken == null) { // 토큰이 없을 때
-            return errorService.createErrorResponse("토큰이 없습니다. 재로그인 해주세요.", HttpStatus.NOT_FOUND, null); // 재로그인 요청
+            return errorService.createErrorResponse("토큰이 없습니다. 재로그인 해주세요.", HttpStatus.BAD_REQUEST, null); // 재로그인 요청
         }
 
         if (!jwtTokenProvider.validateRefreshToken(foundRefreshToken)) { // 토큰이 유효하지 않을 때
