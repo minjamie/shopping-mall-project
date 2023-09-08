@@ -40,8 +40,8 @@ jobs:
     # Github Repository Secrets 를 통해 환경 변수 파일을 생성한다.
     - name: Generate Environment Variables File for Production
       run: |
-#        echo "$APPLICATION" >> ./src/main/resources/application-prod.yml
-#        
+        echo "$APPLICATION" >> ./src/main/resources/application-prod.yml
+
       env:
         APPLICATION: ${{ secrets.APPLICATION }}
       
