@@ -264,6 +264,15 @@ public class AuthService {
         User user = userOptional.get();
 
         Optional<Login> loginOptional = loginRepository.findByUserId(userId);
+
+        if (loginOptional.isEmpty()) {
+            loginRepository.save(
+                    Login.builder()
+                            .user(user)
+                            .refreshToken(null)
+                            .count(1)
+                            .build());
+        }
         Login login = loginOptional.get();
 
         login.increaseCount();
