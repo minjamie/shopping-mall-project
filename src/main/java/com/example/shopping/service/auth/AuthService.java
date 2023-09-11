@@ -19,6 +19,7 @@ import com.example.shopping.service.token.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +44,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final ErrorService errorService;
     private final TokenService tokenService;
+
+
 
 
     // 회원가입
@@ -107,7 +110,6 @@ public class AuthService {
     public CommonResponse login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
-        boolean isLogin = false;
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -140,7 +142,7 @@ public class AuthService {
             String refreshToken = tokenDto.getRefreshToken();
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+                increaseCount(userId);
             }
 
             Optional<Login> loginOptional = loginRepository.findByUserId(user.getId());
@@ -194,8 +196,7 @@ public class AuthService {
 
         Optional<Login> loginOptional = loginRepository.findByUserEmail(email);
 
-        if (loginOptional.isEmpty())
-            return errorService.createErrorResponse("로그아웃에 실패했습니다.", HttpStatus.NOT_FOUND, null);
+        if (loginOptional.isEmpty()) return errorService.createErrorResponse("로그아웃에 실패했습니다.", HttpStatus.NOT_FOUND, null);
 
         Login login = loginOptional.get();
 
@@ -258,9 +259,8 @@ public class AuthService {
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
     }
 
-    public CommonResponse increaseCount(boolean isLogin, Integer userId) {
-
-        if (isLogin) {
+    public CommonResponse increaseCount(Integer userId) {
+        try {
             Optional<User> userOptional = userRepository.findById(userId);
             User user = userOptional.get();
 
@@ -273,9 +273,8 @@ public class AuthService {
                                 .refreshToken(null)
                                 .count(1)
                                 .build());
-
-                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
+
             Login login = loginOptional.get();
 
 
@@ -285,6 +284,9 @@ public class AuthService {
             }
 
             login.increaseCount();
+
+        } catch (BadCredentialsException e) {
+            return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
         }
         return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
     }
