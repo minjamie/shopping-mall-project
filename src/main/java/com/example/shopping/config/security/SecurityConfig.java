@@ -1,5 +1,6 @@
 package com.example.shopping.config.security;
 
+import com.example.shopping.domain.Enum.RoleType;
 import com.example.shopping.security.CustomAccessDeniedHandler;
 import com.example.shopping.security.CustomAuthenticationEntryPoint;
 import com.example.shopping.security.JwtAuthenticationFilter;
@@ -48,8 +49,8 @@ public class SecurityConfig {
                     .antMatchers("/resources/static/**", "/api/v1/product/*",
                             "/api/v1/products/*", "/api/v1/user/sign/*", "/api/v1/user/login/*", "/api/v1/user/unlock").permitAll()
                     .antMatchers("/api/v1/user/{userId}/*", "/api/v1/user/validate/*",
-                            "/api/v1/user/logout", "/api/v1/user/reissue", "/api/v1/user/cart/*").hasRole("USER")
-                    .antMatchers("/api/v1/seller/*", "/api/v1/user/seller/*").hasRole("SELLER")
+                            "/api/v1/user/logout", "/api/v1/user/reissue", "/api/v1/user/cart/*").hasRole(RoleType.ROLE_USER.name())
+                    .antMatchers("/api/v1/seller/*", "/api/v1/user/seller/*").hasRole(RoleType.ROLE_SELLER.name())
 //                    .antMatchers("/resources/static/**", "/api/v1/*").permitAll()
                 .and()
                 .exceptionHandling()
