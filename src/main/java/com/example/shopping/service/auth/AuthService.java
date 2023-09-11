@@ -141,7 +141,7 @@ public class AuthService {
             String refreshToken = tokenDto.getRefreshToken();
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
-//                increaseCount(userId);
+                increaseCount(userId);
                 return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
 
