@@ -141,8 +141,12 @@ public class AuthService {
 
             String refreshToken = tokenDto.getRefreshToken();
 
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                increaseCount(userId);
+            try {
+                if (!passwordEncoder.matches(password, user.getPassword())) {
+                    increaseCount(userId);
+                }
+            } catch (BadCredentialsException e) {
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
 
             Optional<Login> loginOptional = loginRepository.findByUserId(user.getId());
@@ -161,8 +165,7 @@ public class AuthService {
 
             return errorService.createSuccessResponse("로그인에 성공했습니다.", HttpStatus.CREATED, tokenDto);
 
-        } catch (BadCredentialsException e) {
-            return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+
         } catch (Exception e) {
             e.printStackTrace();
             return errorService.createErrorResponse("로그인 할 수 없습니다.", HttpStatus.NOT_ACCEPTABLE, null);
@@ -261,7 +264,7 @@ public class AuthService {
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
     }
 
-    public CommonResponse increaseCount(Integer userId) {
+    public void increaseCount(Integer userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         User user = userOptional.get();
 
@@ -278,14 +281,10 @@ public class AuthService {
 
         Login login = loginOptional.get();
 
+        login.increaseCount();
 
         if (login.getCount() == 5) {
             user.setAuth(true);
-            return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
         }
-
-        login.increaseCount();
-
-        return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
     }
 }
