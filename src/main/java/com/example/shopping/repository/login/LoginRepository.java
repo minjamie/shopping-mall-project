@@ -11,7 +11,7 @@ public interface LoginRepository extends JpaRepository<Login, Integer> {
 
     Login findByRefreshToken(String refreshToken);
 
-    Login findByUserId(Integer userId);
+    Optional<Login> findByUserId(Integer userId);
 
     void deleteByUserId(Integer userId);
 

@@ -14,6 +14,7 @@ import com.example.shopping.security.JwtTokenProvider;
 import com.example.shopping.service.error.ErrorService;
 import com.example.shopping.service.token.TokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -130,17 +131,6 @@ public class AuthService {
                 return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
             }
 
-            Login loginFound = loginRepository.findByUserId(user.getId());
-
-            if (!user.getPassword().equals(password)) {
-                loginFound.increaseCount();
-                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
-            }
-
-            if (loginFound.getCount() == 5) {
-                user.setAuth(true);
-            }
-
             Integer userId = user.getId();
 
             List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
@@ -148,7 +138,14 @@ public class AuthService {
 
             String refreshToken = tokenDto.getRefreshToken();
 
-            if (loginFound.equals(null)) {
+            if (!user.getPassword().equals(password)) {
+                increaseCount(userId);
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+            }
+
+            Optional<Login> loginOptional = loginRepository.findByUserId(user.getId());
+
+            if (loginOptional.isEmpty()) {
                 loginRepository.save(
                         Login.builder()
                                 .user(user)
@@ -156,9 +153,9 @@ public class AuthService {
                                 .count(0)
                                 .build());
             } else {
+                Login loginFound = loginOptional.get();
                 loginFound.setRefreshToken(refreshToken);
             }
-
 
             return errorService.createSuccessResponse("로그인에 성공했습니다.", HttpStatus.CREATED, tokenDto);
 
@@ -237,7 +234,8 @@ public class AuthService {
 
         Integer userId = user.getId();
 
-        Login login = loginRepository.findByUserId(userId);
+        Optional<Login> loginOptional = loginRepository.findByUserId(userId);
+        Login login = loginOptional.get();
 
         String foundRefreshToken = login.getRefreshToken();
 
@@ -257,5 +255,19 @@ public class AuthService {
         String refreshToken = tokenDto.getRefreshToken();
         login.setRefreshToken(refreshToken);
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
+    }
+
+    public void increaseCount(Integer userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        User user = userOptional.get();
+
+        Optional<Login> loginOptional = loginRepository.findByUserId(userId);
+        Login login = loginOptional.get();
+
+        login.increaseCount();
+
+        if (login.getCount() == 5) {
+            user.setAuth(true);
+        }
     }
 }
