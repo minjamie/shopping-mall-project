@@ -33,7 +33,8 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private Collection<Role> roles;    // 역할 1:N
 
-    private boolean isAuth;     // 인증 유무
+    @Setter
+    private boolean isAuth;     // 계정 잠금 유무
 
     @Setter
     private boolean isWithdrawal;   // 탈퇴 유무

@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    username: root
+    password: alsgur99
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/shopping_mall?useUnicode=true&characterEncoding=UTF-8
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql : true
+        default_batch_fetch_size: 1000
+    show-sql: true
+
+
+logging:
+  level:
+    org.hibernate.type: trace
+
+# HS512 알고리즘 사용
+# echo 'super-coding-project-shopping-mall-authorization-secret-key-half-backend-file-key' | openssl base64
+jwt:
+  secretKey: c3VwZXItY29kaW5nLXByb2plY3Qtc2hvcHBpbmctbWFsbC1hdXRob3JpemF0aW9uLXNlY3JldC1rZXktaGFsZi1iYWNrZW5kLWZpbGUta2V5Cg==
+  access-token-validity-in-seconds: 3600 # 1시간
+  refresh-token-validity-in-seconds: 1209600 # 14일

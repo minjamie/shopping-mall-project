@@ -122,23 +122,33 @@ public class AuthService {
 
             User user = userOptional.get();
 
+            if (user.isAuth()) {
+                return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
+            }
+
             if (user.isWithdrawal()) {
                 return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
             }
 
-            if (user.getPassword().equals(password)) {
+            Login loginFound = loginRepository.findByUserId(user.getId());
+
+            if (!user.getPassword().equals(password)) {
+                loginFound.increaseCount();
                 return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
-            Integer userId = user.getId();
 
-            Login loginFound = loginRepository.findByUserId(userId);
+            if (loginFound.getCount() == 5) {
+                user.setAuth(true);
+            }
+
+            Integer userId = user.getId();
 
             List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
             TokenDto tokenDto = jwtTokenProvider.createToken(userId, email, roles);
 
             String refreshToken = tokenDto.getRefreshToken();
 
-            if (loginFound == null) {
+            if (loginFound.equals(null)) {
                 loginRepository.save(
                         Login.builder()
                                 .user(user)
@@ -156,6 +166,27 @@ public class AuthService {
             e.printStackTrace();
             return errorService.createErrorResponse("로그인 할 수 없습니다.", HttpStatus.NOT_ACCEPTABLE, null);
         }
+    }
+
+    // 계정 잠금 해제
+    @Transactional
+    public CommonResponse unlock(LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        }
+
+        User user = userOptional.get();
+
+        if (user.isWithdrawal()) {
+            return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
+        }
+
+        user.setAuth(false);
+        return errorService.createSuccessResponse("계정 잠금을 해제 했습니다.", HttpStatus.OK, null);
     }
 
 

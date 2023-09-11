@@ -1,5 +1,7 @@
 package com.example.shopping.config.security;
 
+import com.example.shopping.security.CustomAccessDeniedHandler;
+import com.example.shopping.security.CustomAuthenticationEntryPoint;
 import com.example.shopping.security.JwtAuthenticationFilter;
 import com.example.shopping.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,9 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,7 +45,11 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/resources/static/**", "/api/v1/*").permitAll()
+                    .antMatchers("/resources/static/**", "/api/v1/*").permitAll()
+                .and()
+                .exceptionHandling()
+                    .accessDeniedHandler(customAccessDeniedHandler)
+                    .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
