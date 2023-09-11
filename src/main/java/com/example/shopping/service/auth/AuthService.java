@@ -141,11 +141,7 @@ public class AuthService {
 
             String refreshToken = tokenDto.getRefreshToken();
 
-            try {
-                if (!passwordEncoder.matches(password, user.getPassword())) {
-                    increaseCount(userId);
-                }
-            } catch (BadCredentialsException e) {
+            if (!passwordEncoder.matches(password, user.getPassword())) {
                 return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
 
@@ -262,29 +258,5 @@ public class AuthService {
         String refreshToken = tokenDto.getRefreshToken();
         login.setRefreshToken(refreshToken);
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
-    }
-
-    public void increaseCount(Integer userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        User user = userOptional.get();
-
-        Optional<Login> loginOptional = loginRepository.findByUserId(userId);
-
-        if (loginOptional.isEmpty()) {
-            loginRepository.save(
-                    Login.builder()
-                            .user(user)
-                            .refreshToken(null)
-                            .count(1)
-                            .build());
-        }
-
-        Login login = loginOptional.get();
-
-        login.increaseCount();
-
-        if (login.getCount() == 5) {
-            user.setAuth(true);
-        }
     }
 }
