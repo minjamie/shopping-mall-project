@@ -1,7 +1,10 @@
 package com.example.shopping.service.auth;
 
-import com.example.shopping.domain.*;
+import com.example.shopping.domain.Address;
 import com.example.shopping.domain.Enum.RoleType;
+import com.example.shopping.domain.Login;
+import com.example.shopping.domain.Role;
+import com.example.shopping.domain.User;
 import com.example.shopping.dto.auth.LoginRequest;
 import com.example.shopping.dto.auth.SignupRequest;
 import com.example.shopping.dto.auth.TokenDto;
@@ -14,7 +17,6 @@ import com.example.shopping.security.JwtTokenProvider;
 import com.example.shopping.service.error.ErrorService;
 import com.example.shopping.service.token.TokenService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -138,7 +140,7 @@ public class AuthService {
 
             String refreshToken = tokenDto.getRefreshToken();
 
-            if (!user.getPassword().equals(password)) {
+            if (!user.getPassword().equals(passwordEncoder.encode(password))) {
 //                increaseCount(userId);
                 return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
