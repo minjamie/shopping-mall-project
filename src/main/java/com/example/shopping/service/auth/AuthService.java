@@ -161,6 +161,8 @@ public class AuthService {
 
             return errorService.createSuccessResponse("로그인에 성공했습니다.", HttpStatus.CREATED, tokenDto);
 
+        } catch (BadCredentialsException e) {
+            return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
         } catch (Exception e) {
             e.printStackTrace();
             return errorService.createErrorResponse("로그인 할 수 없습니다.", HttpStatus.NOT_ACCEPTABLE, null);
@@ -260,34 +262,30 @@ public class AuthService {
     }
 
     public CommonResponse increaseCount(Integer userId) {
-        try {
-            Optional<User> userOptional = userRepository.findById(userId);
-            User user = userOptional.get();
+        Optional<User> userOptional = userRepository.findById(userId);
+        User user = userOptional.get();
 
-            Optional<Login> loginOptional = loginRepository.findByUserId(userId);
+        Optional<Login> loginOptional = loginRepository.findByUserId(userId);
 
-            if (loginOptional.isEmpty()) {
-                loginRepository.save(
-                        Login.builder()
-                                .user(user)
-                                .refreshToken(null)
-                                .count(1)
-                                .build());
-            }
-
-            Login login = loginOptional.get();
-
-
-            if (login.getCount() == 5) {
-                user.setAuth(true);
-                return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
-            }
-
-            login.increaseCount();
-
-        } catch (BadCredentialsException e) {
-            return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+        if (loginOptional.isEmpty()) {
+            loginRepository.save(
+                    Login.builder()
+                            .user(user)
+                            .refreshToken(null)
+                            .count(1)
+                            .build());
         }
+
+        Login login = loginOptional.get();
+
+
+        if (login.getCount() == 5) {
+            user.setAuth(true);
+            return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
+        }
+
+        login.increaseCount();
+
         return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
     }
 }
