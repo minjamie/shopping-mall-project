@@ -45,8 +45,6 @@ public class AuthService {
     private final TokenService tokenService;
 
 
-
-
     // 회원가입
     @Transactional
     public CommonResponse signup(SignupRequest signupRequest) {
@@ -109,6 +107,7 @@ public class AuthService {
     public CommonResponse login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
+        boolean isLogin = false;
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -141,7 +140,7 @@ public class AuthService {
             String refreshToken = tokenDto.getRefreshToken();
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                increaseCount(userId);
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
             }
 
             Optional<Login> loginOptional = loginRepository.findByUserId(user.getId());
@@ -195,7 +194,8 @@ public class AuthService {
 
         Optional<Login> loginOptional = loginRepository.findByUserEmail(email);
 
-        if (loginOptional.isEmpty()) return errorService.createErrorResponse("로그아웃에 실패했습니다.", HttpStatus.NOT_FOUND, null);
+        if (loginOptional.isEmpty())
+            return errorService.createErrorResponse("로그아웃에 실패했습니다.", HttpStatus.NOT_FOUND, null);
 
         Login login = loginOptional.get();
 
@@ -258,32 +258,34 @@ public class AuthService {
         return errorService.createSuccessResponse("토큰 재발급에 성공했습니다.", HttpStatus.CREATED, tokenDto);
     }
 
-    public CommonResponse increaseCount(Integer userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        User user = userOptional.get();
+    public CommonResponse increaseCount(boolean isLogin, Integer userId) {
 
-        Optional<Login> loginOptional = loginRepository.findByUserId(userId);
+        if (isLogin) {
+            Optional<User> userOptional = userRepository.findById(userId);
+            User user = userOptional.get();
 
-        if (loginOptional.isEmpty()) {
-            loginRepository.save(
-                    Login.builder()
-                            .user(user)
-                            .refreshToken(null)
-                            .count(1)
-                            .build());
+            Optional<Login> loginOptional = loginRepository.findByUserId(userId);
 
-            return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+            if (loginOptional.isEmpty()) {
+                loginRepository.save(
+                        Login.builder()
+                                .user(user)
+                                .refreshToken(null)
+                                .count(1)
+                                .build());
+
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+            }
+            Login login = loginOptional.get();
+
+
+            if (login.getCount() == 5) {
+                user.setAuth(true);
+                return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
+            }
+
+            login.increaseCount();
         }
-        Login login = loginOptional.get();
-
-
-        if (login.getCount() == 5) {
-            user.setAuth(true);
-            return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
-        }
-
-        login.increaseCount();
-
         return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
     }
 }
