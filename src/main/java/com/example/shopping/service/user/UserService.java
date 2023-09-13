@@ -50,7 +50,6 @@ public class UserService {
         return errorService.createSuccessResponse("장바구니 목록 조회 완료했습니다.", HttpStatus.OK, result);
     }
 
-    // 판매자 등록
     @Transactional
     public CommonResponse insertSeller(Integer userId) {
         Optional<User> user = userRepository.findById(userId);

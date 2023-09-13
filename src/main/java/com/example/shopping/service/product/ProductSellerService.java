@@ -227,9 +227,9 @@ public class ProductSellerService {
     }
 
 
-/*    public CommonResponse getProductList(Integer userId, Pageable pageable){
+    public CommonResponse getProductList(Integer userId, Pageable pageable){
         return errorService.createErrorResponse("판매자 상품목록 조회 완료하였습니다.", HttpStatus.OK, null);
-    }*/
+    }
 
 
 

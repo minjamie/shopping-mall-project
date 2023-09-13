@@ -73,7 +73,7 @@ public class UserController {
         }
     }
 
-
+    @ApiOperation(value = "판매자 등록 API", notes = "판매자 등록")
     @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/seller")
     public ResponseEntity<ResultDto<Void>> registerSeller(@RequestHeader("ACCESS-TOKEN") String accessToken){

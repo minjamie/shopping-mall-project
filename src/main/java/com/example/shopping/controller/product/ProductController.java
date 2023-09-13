@@ -5,6 +5,8 @@ import com.example.shopping.dto.common.ResultDto;
 import com.example.shopping.dto.product.ProductListResponseDto;
 import com.example.shopping.dto.product.ProductResponseDto;
 import com.example.shopping.service.product.ProductService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
+@Api(tags = "Product APIs")
 public class ProductController {
 
     private final ProductService productService;
@@ -36,8 +39,11 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }*/
 
+
+    @ApiOperation(value = "상품조회 API", notes = "상품 조회")
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{productId}")
-    public ResponseEntity<ResultDto<ProductResponseDto>> getProduct(@PathVariable Integer productId){
+    public ResponseEntity<ResultDto<ProductResponseDto>> getProduct(@PathVariable Integer productId) {
         CommonResponse productInfoResponse = productService.getProduct(productId);
         ResultDto<ProductResponseDto> result = ResultDto.in(productInfoResponse.getStatus(), productInfoResponse.getMessage());
         result.setData((ProductResponseDto) productInfoResponse.getData());
