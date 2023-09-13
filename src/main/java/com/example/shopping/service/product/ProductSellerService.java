@@ -145,11 +145,12 @@ public class ProductSellerService {
         }
 
 
-        // 재고수량 변경
+        // 옵션 재고수량 변경
         Optional<ProductOption> productOption = productOptionRepository.findByProductIdAndOptionId(updateProductDto.getProductId(), updateProductDto.getOptionId());
         if(productOption.isEmpty()){
             return errorService.createErrorResponse("해당 상품의 옵션을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
         }
+        productOption.get().updateStock(updateProductDto.getStock());
 
         return errorService.createSuccessResponse("판매자 상품수정 완료하였습니다.", HttpStatus.OK, null);
     }

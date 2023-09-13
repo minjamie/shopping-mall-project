@@ -25,4 +25,8 @@ public class ProductOption {
     private Option option;
 
     private Integer stock;
+
+    public void updateStock(Integer stock){
+        this.stock = stock;
+    }
 }
