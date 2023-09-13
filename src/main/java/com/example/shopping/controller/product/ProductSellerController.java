@@ -11,6 +11,7 @@ import com.example.shopping.security.JwtTokenProvider;
 import com.example.shopping.service.product.ProductSellerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class ProductSellerController {
 
     @PostMapping("/products")
     public ResponseEntity<ResultDto<Void>> registerProduct(
-            @RequestHeader("ACCESS-TOKEN") String accessToken, @RequestBody ProductRequestDto insertProductDto){
+            @RequestHeader("ACCESS-TOKEN") String accessToken, @RequestBody InsertProductRequestDto insertProductDto){
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
         CommonResponse commonResponse = productSellerService.insertProduct(user.getUserId(), insertProductDto);
         ResultDto<Void> result = ResultDto.in(commonResponse.getStatus(), commonResponse.getMessage());
@@ -51,7 +52,7 @@ public class ProductSellerController {
 
     @PutMapping("/proudcts/{productId}")
     public ResponseEntity<ResultDto<Void>> updateProduct(
-            @RequestHeader("ACCESS-TOKEN") String accessToken, @PathVariable Integer productId, @RequestBody ProductRequestDto updateProductDto){
+            @RequestHeader("ACCESS-TOKEN") String accessToken, @PathVariable Integer productId, @RequestBody UpdateProductRequestDto updateProductDto){
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
         CommonResponse  updateProductResponse= productSellerService.updateProduct(user.getUserId(), productId ,updateProductDto);
         ResultDto<Void> result = ResultDto.in(updateProductResponse.getStatus(), updateProductResponse.getMessage());

@@ -20,6 +20,7 @@ import com.example.shopping.repository.user.UserRepository;
 import com.example.shopping.service.error.ErrorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ public class ProductSellerService {
     private final BrandRepository brandRepository;
 
     @Transactional
-    public CommonResponse insertProduct(Integer userId, ProductRequestDto insertProductDto){
+    public CommonResponse insertProduct(Integer userId, InsertProductRequestDto insertProductDto){
 
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
@@ -100,9 +101,8 @@ public class ProductSellerService {
 
 
     @Transactional
-    public CommonResponse updateProduct(Integer userId, Integer productId, ProductRequestDto updateProductDto){
+    public CommonResponse updateProduct(Integer userId, Integer productId, UpdateProductRequestDto updateProductDto){
 
-        log.info("판매자 상품 수정");
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
@@ -129,7 +129,8 @@ public class ProductSellerService {
             return errorService.createErrorResponse("해당 서브카테고리는 존재하지 않습니다.", HttpStatus.NOT_FOUND, null);
         }
 
-        Optional<Product> product = productRepository.findById(productId);
+        Product updateProduct = updateProductDto.toEntity();
+        Optional<Product> product = productRepository.findById(updateProduct.getId());
         if(product.isEmpty()){
             return errorService.createErrorResponse("해당 상품은 존재하지 않습니다.", HttpStatus.NOT_FOUND, null);
         }
