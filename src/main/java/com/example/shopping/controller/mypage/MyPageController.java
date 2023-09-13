@@ -36,7 +36,7 @@ public class MyPageController {
 
     @ApiOperation(value = "회원탈퇴 API", notes = "유저 회원탈퇴 진행")
     @ResponseStatus(HttpStatus.OK)
-    @PatchMapping("/{userId}/withdrawal")
+    @PatchMapping("/withdrawal/{userId}")
     public ResponseEntity<ResultDto<Void>> withdrawal(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken,
                                                       @ApiParam(name = "id", value = "userId", example = "1") @PathVariable Integer userId) {
         CommonResponse withdrawalCommonResponse = myPageService.withdrawal(requestAccessToken, userId);
