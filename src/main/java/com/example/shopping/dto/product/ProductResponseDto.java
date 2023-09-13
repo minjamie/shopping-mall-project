@@ -27,7 +27,7 @@ public class ProductResponseDto {
     private Integer deliveryPrice;
     private LocalDateTime saleStartDate;
     private LocalDateTime saleEndDate;
-    //private String imageType;
+    private String imageType;
     private String imageUrl;
     private List<ProductOptionDto> optionList;
 
@@ -65,6 +65,7 @@ public class ProductResponseDto {
                 .saleStartDate(product.getSaleStartDate())
                 .saleEndDate(product.getSaleEndDate())
                 .imageUrl(image.getUrl())
+                .imageType(image.getType())
                 .optionList(optionDtoList)
                 .build();
     }

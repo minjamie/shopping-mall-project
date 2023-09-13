@@ -34,6 +34,7 @@ public class UpdateProductRequestDto {
 
     public Product toEntity(){
         return Product.builder()
+                .id(productId)
                 .name(name)
                 .price(price)
                 .description(description)

@@ -130,29 +130,27 @@ public class ProductSellerService {
         }
 
         Product updateProduct = updateProductDto.toEntity();
-        Optional<Product> product = productRepository.findById(updateProduct.getId());
+        Optional<Product> product = productRepository.findById(productId);
         if(product.isEmpty()){
             return errorService.createErrorResponse("해당 상품은 존재하지 않습니다.", HttpStatus.NOT_FOUND, null);
+        }else{
+            product.get().updateProduct(updateProduct);
         }
-        product.get().updateProduct(product.get());
 
-        Image image = Image.builder()
-                .type(updateProductDto.getImageType())
-                .url(updateProductDto.getImageUrl())
-                .product(product.get())
-                .build();
-        imageRepository.save(image);
-
-        Optional<Option> option = optionRepository.findById(updateProductDto.getOptionId());
-        if (option.isEmpty()) {
-            return errorService.createErrorResponse("해당 옵션을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        Optional<Image> image = imageRepository.findImageByProduct(product.get());
+        if(image.isEmpty()){
+            return errorService.createErrorResponse("해당 상품의 이미지가 존재하지 않습니다.", HttpStatus.NOT_FOUND, null);
+        }else{
+            image.get().updateImage(updateProductDto.getImageUrl(), updateProductDto.getImageType());
         }
-        ProductOption productOption = ProductOption.builder()
-                .product(product.get())
-                .option(option.get())
-                .stock(updateProductDto.getStock())
-                .build();
-        productOptionRepository.save(productOption);
+
+
+        // 재고수량 변경
+        Optional<ProductOption> productOption = productOptionRepository.findByProductIdAndOptionId(updateProductDto.getProductId(), updateProductDto.getOptionId());
+        if(productOption.isEmpty()){
+            return errorService.createErrorResponse("해당 상품의 옵션을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        }
+
         return errorService.createSuccessResponse("판매자 상품수정 완료하였습니다.", HttpStatus.OK, null);
     }
 
