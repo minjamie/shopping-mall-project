@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 
 @Slf4j
@@ -35,7 +36,7 @@ public class ProductSellerController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/products")
     public ResponseEntity<ResultDto<Void>> registerProduct(
-            @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
             @RequestBody InsertProductRequestDto insertProductDto) {
 
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
@@ -49,7 +50,7 @@ public class ProductSellerController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/products/{productId}")
     public ResponseEntity<ResultDto<ProductResponseDto>> productEdit(
-            @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
             @PathVariable Integer productId) {
 
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
@@ -64,7 +65,7 @@ public class ProductSellerController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/products/{productId}")
     public ResponseEntity<ResultDto<Void>> updateProduct(
-            @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
             @PathVariable Integer productId, @RequestBody UpdateProductRequestDto updateProductDto) {
 
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
@@ -79,7 +80,7 @@ public class ProductSellerController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/proudcts")
     public ResponseEntity<ResultDto<ProductListResponseDto>> getSellerProductList(
-            @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
             @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "10") int size){
 
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));

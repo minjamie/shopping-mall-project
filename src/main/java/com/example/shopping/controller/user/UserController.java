@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class UserController {
     public ResponseEntity<ResultDto<OrderListResponse>> getOrderList(
              @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-             @RequestHeader("ACCESS-TOKEN") String accessToken
+             @ApiIgnore  @RequestHeader("ACCESS-TOKEN") String accessToken
     ){
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
         if(user != null){
@@ -56,7 +57,7 @@ public class UserController {
     public ResponseEntity<ResultDto<CartListResponse>> getCartList(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestHeader("ACCESS-TOKEN") String accessToken
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken
     ) {
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
         if(user != null){

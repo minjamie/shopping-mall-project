@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class CartController {
     public ResponseEntity<ResultDto<Void>> addCart(
             @PathVariable String productId,
             @RequestBody AddCartRequest addCartRequest,
-            @RequestHeader("ACCESS-TOKEN") String accessToken){
+            @ApiIgnore  @RequestHeader("ACCESS-TOKEN") String accessToken){
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
         if(user != null){
             System.out.println(user);
@@ -54,7 +55,7 @@ public class CartController {
     public ResponseEntity<ResultDto<Void>> updateCart(
             @PathVariable String cartId,
             @RequestBody UpdatedCartRequest updateCartRequest,
-            @RequestHeader("ACCESS-TOKEN") String accessToken) {
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken) {
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
             if(user != null){
                 CommonResponse updatedCommonResponse = cartService.updateCart(Integer.valueOf(cartId), updateCartRequest, user.getUserId());
@@ -71,7 +72,7 @@ public class CartController {
     public ResponseEntity<ResultDto<Void>> orderCart(
             @RequestParam("cartIds") List<Integer> cartIds,
             @RequestBody OrderCartRequest orderCartRequest,
-            @RequestHeader("ACCESS-TOKEN") String accessToken) {
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken) {
         AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
         if(user != null) {
             CommonResponse orderCommonResponse = cartService.orderCart(cartIds, orderCartRequest, user.getUserId());
