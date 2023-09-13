@@ -1,8 +1,9 @@
 package com.example.shopping.domain;
 
+
+import com.example.shopping.domain.Enum.SellStatus;
 import com.example.shopping.domain.common.BaseTimeEntity;
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,8 +32,12 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private String description; // 설명
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SellStatus sellStatus; // 판매상태
+
     @Column
-    private Integer discount; // 할인금액
+    private Integer discountRate; // 할인율
 
     @Column(nullable = false)
     private Boolean isDiscount; // 할인여부
@@ -43,7 +48,9 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer deliveryPrice; // 배송비
 
-    private LocalDateTime saleEndDate; // 할인종료날짜
+    private LocalDateTime saleStartDate; // 할인시작일자
+    private LocalDateTime saleEndDate;   // 할인종료날짜
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -54,4 +61,37 @@ public class Product extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "product")
     private List<Brand> brands = new ArrayList<>();
+
+
+    public static Product createProduct(Category category, Product product){
+        return Product.builder()
+                .name(product.getName())
+                .price(product.getPrice())
+                .description(product.getDescription())
+                .sellStatus(product.getSellStatus())
+                .discountRate(product.getDiscountRate())
+                .isDiscount(product.getIsDiscount())
+                .isNew(product.getIsNew())
+                .deliveryPrice(product.getDeliveryPrice())
+                .saleStartDate(product.getSaleStartDate())
+                .saleEndDate(product.getSaleEndDate())
+                .category(category)
+                .build();
+    }
+
+    public void updateProduct(Product updateProduct){
+        this.name = updateProduct.getName();
+        this.price = updateProduct.getPrice();
+        this.description = updateProduct.getDescription();
+        this.sellStatus = updateProduct.getSellStatus();
+        this.discountRate = updateProduct.getDiscountRate();
+        this.isDiscount = updateProduct.getIsDiscount();
+        this.isNew = updateProduct.getIsNew();
+        this.deliveryPrice = updateProduct.getDeliveryPrice();
+        this.saleStartDate = updateProduct.getSaleStartDate();
+        this.saleEndDate = updateProduct.getSaleEndDate();
+    }
+
+
+
 }

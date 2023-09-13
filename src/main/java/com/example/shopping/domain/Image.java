@@ -27,4 +27,9 @@ public class Image {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    public void updateImage(String url, String type){
+        this.url = url;
+        this.type = type;
+    }
+
 }
