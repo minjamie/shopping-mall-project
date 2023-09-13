@@ -37,9 +37,6 @@ public class Product extends BaseTimeEntity {
     private SellStatus sellStatus; // 판매상태
 
     @Column
-    private Integer discountPrice; // 할인금액
-
-    @Column
     private Integer discountRate; // 할인율
 
     @Column(nullable = false)
@@ -64,4 +61,37 @@ public class Product extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "product")
     private List<Brand> brands = new ArrayList<>();
+
+
+    public static Product createProduct(Category category, Product product){
+        return Product.builder()
+                .name(product.getName())
+                .price(product.getPrice())
+                .description(product.getDescription())
+                .sellStatus(product.getSellStatus())
+                .discountRate(product.getDiscountRate())
+                .isDiscount(product.getIsDiscount())
+                .isNew(product.getIsNew())
+                .deliveryPrice(product.getDeliveryPrice())
+                .saleStartDate(product.getSaleStartDate())
+                .saleEndDate(product.getSaleEndDate())
+                .category(category)
+                .build();
+    }
+
+    public void updateProduct(Product updateProduct){
+        this.name = updateProduct.getName();
+        this.price = updateProduct.getPrice();
+        this.description = updateProduct.getDescription();
+        this.sellStatus = updateProduct.getSellStatus();
+        this.discountRate = updateProduct.getDiscountRate();
+        this.isDiscount = updateProduct.getIsDiscount();
+        this.isNew = updateProduct.getIsNew();
+        this.deliveryPrice = updateProduct.getDeliveryPrice();
+        this.saleStartDate = updateProduct.getSaleStartDate();
+        this.saleEndDate = updateProduct.getSaleEndDate();
+    }
+
+
+
 }
