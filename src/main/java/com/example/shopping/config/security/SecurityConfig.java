@@ -47,10 +47,10 @@ public class SecurityConfig {
                 .authorizeRequests()
                     .antMatchers("/resources/static/**", "/api/v1/product/*",
                             "/api/v1/products/*", "/api/v1/user/sign/*", "/api/v1/user/login/*", "/api/v1/user/unlock").permitAll()
-                    .antMatchers("/api/v1/user/*/withdrawal", "/api/v1/user/validate/*",
-                            "/api/v1/user/logout/*", "/api/v1/user/reissue/*", "/api/v1/user/cart/*").hasRole("USER")
-                    .antMatchers("/api/v1/seller/*", "/api/v1/user/seller/*").hasRole("SELLER")
-//                    .antMatchers("/resources/static/**", "/api/v1/*").permitAll()
+                    .antMatchers("/api/v1/user/*/withdrawal", "/api/v1/user/validate/*", "/api/v1/user/*"
+                            , "/api/v1/user/*/order", "/api/v1/user/*/cart", "/api/v1/user/*/pay/*",
+                            "/api/v1/user/logout/*", "/api/v1/user/reissue/*", "/api/v1/user/cart/*").authenticated().anyRequest().hasRole("USER")
+                    .antMatchers("/api/v1/seller/*", "/api/v1/user/seller/*").authenticated().anyRequest().hasRole("SELLER")
                 .and()
                 .exceptionHandling()
                     .accessDeniedHandler(customAccessDeniedHandler)
