@@ -51,7 +51,6 @@ public class SecurityConfig {
                             , "/api/v1/user/*/order", "/api/v1/user/*/cart", "/api/v1/user/*/pay/*",
                             "/api/v1/user/logout/*", "/api/v1/user/reissue/*", "/api/v1/user/cart/*").hasRole("USER")
                     .antMatchers("/api/v1/seller/*", "/api/v1/user/seller/*").hasRole("SELLER")
-                    .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
                     .accessDeniedHandler(customAccessDeniedHandler)
