@@ -72,7 +72,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://gd-mall.vercel.app/"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://gd-mall.vercel.app/", "https://gd-mall-psi.vercel.app/"));
         configuration.setAllowCredentials(true); // token 주고 받을 때,
         configuration.addExposedHeader("ACCESS-TOKEN"); // access-token
         configuration.addAllowedHeader("*");
