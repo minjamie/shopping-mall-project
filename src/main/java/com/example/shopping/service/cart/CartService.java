@@ -173,7 +173,7 @@ public class CartService implements CartServiceInterface {
 
     private Optional<ProductOption> findOptionById(Product product, Integer optionId) {
         return product.getProductOptions().stream()
-                .filter(option -> option.getId().equals(optionId))
+                .filter(option -> option.getOption().getId().equals(optionId))
                 .findFirst();
     }
 }
