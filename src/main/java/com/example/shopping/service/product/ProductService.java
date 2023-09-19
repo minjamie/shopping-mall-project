@@ -10,7 +10,8 @@ import com.example.shopping.repository.image.ImageRepository;
 import com.example.shopping.repository.product.ProductRepository;
 import com.example.shopping.service.error.ErrorService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,4 +64,12 @@ public class ProductService {
     }
 
 
+    public CommonResponse getProducts(PageRequest pageable) {
+        Page<Product> products = productRepository.findAll(pageable);
+        if (products.isEmpty()){
+            return errorService.createErrorResponse("해당 상품들을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        } else {
+            return errorService.createSuccessResponse("상품 리스트 조회 완료하였습니다.", HttpStatus.OK, products);
+        }
+    }
 }

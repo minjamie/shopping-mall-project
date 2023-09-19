@@ -3,6 +3,8 @@ package com.example.shopping.domain;
 
 import com.example.shopping.domain.Enum.SellStatus;
 import com.example.shopping.domain.common.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -52,14 +54,17 @@ public class Product extends BaseTimeEntity {
     private LocalDateTime saleEndDate;   // 할인종료날짜
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private List<ProductOption> productOptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private List<Brand> brands = new ArrayList<>();
 
 

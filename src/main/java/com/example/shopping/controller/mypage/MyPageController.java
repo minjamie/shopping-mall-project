@@ -1,9 +1,11 @@
 package com.example.shopping.controller.mypage;
 
 
+import com.example.shopping.dto.auth.AuthInfoUserId;
 import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.dto.common.ResultDto;
 import com.example.shopping.dto.mypage.MyPageResponse;
+import com.example.shopping.security.JwtTokenProvider;
 import com.example.shopping.service.mypage.MyPageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +23,8 @@ import springfox.documentation.annotations.ApiIgnore;
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final JwtTokenProvider jwtTokenProvider;
+    public static final String TOKEN_PREFIX = "Bearer ";
 
     @ApiOperation(value = "내 정보 조회 API", notes = "내 정보를 조회")
     @ResponseStatus(HttpStatus.OK)
@@ -44,5 +48,20 @@ public class MyPageController {
 
         return ResponseEntity.status(withdrawalCommonResponse.getHttpStatus()).body(result);
 
+    }
+
+    @ApiOperation(value = "판매자 등록" , notes = "일반 유저 판매자 등록")
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping("/seller")
+    public ResponseEntity<ResultDto<Void>> registerSeller(@ApiIgnore @RequestHeader("ACCESS-TOKEN") String requestAccessToken
+    ) {
+        AuthInfoUserId user = jwtTokenProvider.getUserId(requestAccessToken.substring(TOKEN_PREFIX.length()));
+        if(user != null){
+            CommonResponse sellerCommonResponse = myPageService.registerSeller(requestAccessToken, user.getUserId());
+            ResultDto<Void> result  = ResultDto.in(sellerCommonResponse.getStatus(), sellerCommonResponse.getMessage());
+            return ResponseEntity.status(201).body(result);
+        } else {
+            return ResponseEntity.status(403).body(null);
+        }
     }
 }
