@@ -1,13 +1,15 @@
 package com.example.shopping.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "product_option")
 public class ProductOption {
     @Id
@@ -23,4 +25,8 @@ public class ProductOption {
     private Option option;
 
     private Integer stock;
+
+    public void updateStock(Integer stock){
+        this.stock = stock;
+    }
 }

@@ -24,7 +24,11 @@ public class Login {
 
     @Setter
     private String refreshToken;
+
     private int count;
 
+    public void increaseCount() {
+        this.count += 1;
+    }
 
 }

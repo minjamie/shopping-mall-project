@@ -1,7 +1,10 @@
 package com.example.shopping.service.auth;
 
-import com.example.shopping.domain.*;
+import com.example.shopping.domain.Address;
 import com.example.shopping.domain.Enum.RoleType;
+import com.example.shopping.domain.Login;
+import com.example.shopping.domain.Role;
+import com.example.shopping.domain.User;
 import com.example.shopping.dto.auth.LoginRequest;
 import com.example.shopping.dto.auth.SignupRequest;
 import com.example.shopping.dto.auth.TokenDto;
@@ -122,23 +125,28 @@ public class AuthService {
 
             User user = userOptional.get();
 
+            if (user.isAuth()) {
+                return errorService.createErrorResponse("비밀번호 5회 이상 틀려 계정 잠금 상태 입니다.", HttpStatus.LOCKED, null);
+            }
+
             if (user.isWithdrawal()) {
                 return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
             }
 
-            if (user.getPassword().equals(password)) {
-                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
-            }
             Integer userId = user.getId();
-
-            Login loginFound = loginRepository.findByUserId(userId);
 
             List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
             TokenDto tokenDto = jwtTokenProvider.createToken(userId, email, roles);
 
             String refreshToken = tokenDto.getRefreshToken();
 
-            if (loginFound == null) {
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                return errorService.createErrorResponse("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST, null);
+            }
+
+            Optional<Login> loginOptional = loginRepository.findByUserId(user.getId());
+
+            if (loginOptional.isEmpty()) {
                 loginRepository.save(
                         Login.builder()
                                 .user(user)
@@ -146,16 +154,38 @@ public class AuthService {
                                 .count(0)
                                 .build());
             } else {
+                Login loginFound = loginOptional.get();
                 loginFound.setRefreshToken(refreshToken);
             }
 
-
             return errorService.createSuccessResponse("로그인에 성공했습니다.", HttpStatus.CREATED, tokenDto);
+
 
         } catch (Exception e) {
             e.printStackTrace();
             return errorService.createErrorResponse("로그인 할 수 없습니다.", HttpStatus.NOT_ACCEPTABLE, null);
         }
+    }
+
+    // 계정 잠금 해제
+    @Transactional
+    public CommonResponse unlock(LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        }
+
+        User user = userOptional.get();
+
+        if (user.isWithdrawal()) {
+            return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.BAD_REQUEST, null);
+        }
+
+        user.setAuth(false);
+        return errorService.createSuccessResponse("계정 잠금을 해제 했습니다.", HttpStatus.OK, null);
     }
 
 
@@ -206,7 +236,8 @@ public class AuthService {
 
         Integer userId = user.getId();
 
-        Login login = loginRepository.findByUserId(userId);
+        Optional<Login> loginOptional = loginRepository.findByUserId(userId);
+        Login login = loginOptional.get();
 
         String foundRefreshToken = login.getRefreshToken();
 

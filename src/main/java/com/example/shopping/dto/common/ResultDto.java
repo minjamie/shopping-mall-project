@@ -1,12 +1,14 @@
 package com.example.shopping.dto.common;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @RequiredArgsConstructor(staticName = "in")
 public class ResultDto<Data> {
 

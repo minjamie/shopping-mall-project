@@ -39,6 +39,16 @@ public class AuthController {
     }
 
 
+    @ApiOperation(value = "이메일 중복 확인 API", notes = "유저의 이메일 중복을 확인")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/sign/{email}/exists")
+    public ResponseEntity<ResultDto<Void>> emailExists(@ApiParam(name = "email", value = "유저 이메일", example = "abcd@gmail.com") @PathVariable String email) {
+        CommonResponse existsCommonResponse = authService.emailExists(email);
+        ResultDto<Void> result = ResultDto.in(existsCommonResponse.getStatus(), existsCommonResponse.getMessage());
+        return ResponseEntity.status(existsCommonResponse.getHttpStatus()).body(result);
+    }
+
+
     @ApiOperation(value = "로그인 API", notes = "유저 로그인 진행")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/login")
@@ -61,13 +71,16 @@ public class AuthController {
         return ResponseEntity.status(loginCommonResponse.getHttpStatus()).body(result);
     }
 
-    @ApiOperation(value = "이메일 중복 확인 API", notes = "유저의 이메일 중복을 확인")
+    @ApiOperation(value = "계정 잠금 해제 API", notes = "유저 계정 잠금 해제")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/sign/{email}/exists")
-    public ResponseEntity<ResultDto<Void>> emailExists(@ApiParam(name = "email", value = "유저 이메일", example = "abcd@gmail.com") @PathVariable String email) {
-        CommonResponse existsCommonResponse = authService.emailExists(email);
-        ResultDto<Void> result = ResultDto.in(existsCommonResponse.getStatus(), existsCommonResponse.getMessage());
-        return ResponseEntity.status(existsCommonResponse.getHttpStatus()).body(result);
+    @PostMapping("/unlock")
+    public ResponseEntity<ResultDto<Void>> unlock(@RequestBody LoginRequest loginRequest) {
+        CommonResponse unlockCommonResponse = authService.unlock(loginRequest);
+        ResultDto<Void> result = ResultDto.in(
+                unlockCommonResponse.getStatus(),
+                unlockCommonResponse.getMessage());
+
+        return ResponseEntity.status(unlockCommonResponse.getHttpStatus()).body(result);
     }
 
     @ApiOperation(value = "로그아웃 API", notes = "유저 로그아웃 진행")
