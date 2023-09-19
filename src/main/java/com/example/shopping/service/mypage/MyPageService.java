@@ -1,6 +1,7 @@
 package com.example.shopping.service.mypage;
 
 import com.example.shopping.domain.Address;
+import com.example.shopping.domain.Role;
 import com.example.shopping.domain.User;
 import com.example.shopping.dto.common.CommonResponse;
 import com.example.shopping.dto.mypage.MyPageResponse;
@@ -76,7 +77,7 @@ public class MyPageService {
 
     }
 
-    
+
     // 회원 탈퇴
     @Transactional
     public CommonResponse withdrawal(String requestAccessToken, Integer userId) {
@@ -99,5 +100,35 @@ public class MyPageService {
         user.setWithdrawal(true);
 
         return errorService.createSuccessResponse("회원탈퇴에 성공했습니다.", HttpStatus.OK, null);
+    }
+
+    public CommonResponse registerSeller(String requestAccessToken, Integer userId) {
+        String email = tokenService.resolveTokenEmail(requestAccessToken);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return errorService.createErrorResponse("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
+        }
+
+        User user = userOptional.get();
+
+        if (user.isWithdrawal()) {
+            return errorService.createErrorResponse("회원 탈퇴를 한 유저 입니다.", HttpStatus.NOT_FOUND, null);
+        }
+
+        Integer requestUserId = user.getId();
+
+        if (!requestUserId.equals(userId)) {
+            return errorService.createErrorResponse("유저의 정보가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED, null);
+        }
+        User byUserId = roleRepository.findByUserId(user.getId());
+        if(byUserId != null){
+            return errorService.createErrorResponse("이미 등록된 판매자입니다.", HttpStatus.CONFLICT, null);
+        } else {
+            Role role = new Role().builder()
+                    .user(user)
+                    .name("ROLE_SELLER").build();
+            roleRepository.save(role);
+            return errorService.createSuccessResponse("판매자 등록에 성공했습니다.", HttpStatus.CREATED, null);
+        }
     }
 }
