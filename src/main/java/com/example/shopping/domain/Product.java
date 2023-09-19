@@ -38,7 +38,7 @@ public class Product extends BaseTimeEntity {
 
     @Column
     private Integer discountRate; // 할인율
-
+  
     @Column(nullable = false)
     private Boolean isDiscount; // 할인여부
 
