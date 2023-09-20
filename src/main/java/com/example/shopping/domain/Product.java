@@ -70,7 +70,6 @@ public class Product extends BaseTimeEntity {
     @OneToMany(mappedBy = "product")
     private List<Image> images = new ArrayList<>();
 
-
     public static Product createProduct(Category category, Product product){
         return Product.builder()
                 .name(product.getName())
