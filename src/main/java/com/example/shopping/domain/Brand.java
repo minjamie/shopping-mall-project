@@ -22,4 +22,8 @@ public class Brand extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public void updateBrandName(String name){
+        this.name = name;
+    }
 }
