@@ -45,53 +45,6 @@ public class ProductSellerController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-
-    @ApiOperation(value = "판매자 상품조회 API", notes = "판매자 상품조회")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/products/{productId}")
-    public ResponseEntity<ResultDto<ProductResponseDto>> productEdit(
-            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
-            @PathVariable Integer productId) {
-
-        AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
-        CommonResponse productInfoResponse = productSellerService.productEdit(user.getUserId(), productId);
-        ResultDto<ProductResponseDto> result = ResultDto.in(productInfoResponse.getStatus(), productInfoResponse.getMessage());
-        result.setData((ProductResponseDto) productInfoResponse.getData());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-
-    @ApiOperation(value = "판매자 상품수정 API", notes = "판매자 상품수정")
-    @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/products/{productId}")
-    public ResponseEntity<ResultDto<Void>> updateProduct(
-            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
-            @PathVariable Integer productId, @RequestBody UpdateProductRequestDto updateProductDto) {
-
-        AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
-        CommonResponse updateProductResponse = productSellerService.updateProduct(user.getUserId(), productId, updateProductDto);
-        ResultDto<Void> result = ResultDto.in(updateProductResponse.getStatus(), updateProductResponse.getMessage());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-
-    // 미해결
-    @ApiOperation(value = "판매자 상품 목록조회 API", notes = "판매자 상품 목록조회")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/proudcts")
-    public ResponseEntity<ResultDto<ProductListResponseDto>> getSellerProductList(
-            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
-            @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "10") int size){
-
-        AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
-        PageRequest pageable = PageRequest.of(page-1, size);
-        CommonResponse productListResponse = productSellerService.getProductList(user.getUserId(), pageable);
-        ResultDto<ProductListResponseDto> result = ResultDto.in(productListResponse.getStatus(), productListResponse.getMessage());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-
-
     @ApiOperation(value = "상품 카테고리 목록조회 API", notes = "상품 등록시에 조회, 카테고리 목록 조회")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/products/categories")
@@ -113,6 +66,54 @@ public class ProductSellerController {
         result.setData((SubCategoryListResponseDto) subCategoryListResponse.getData());
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
+    @ApiOperation(value = "판매자 상품조회 API", notes = "판매자 상품조회")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<ResultDto<ProductDetailResponseDto>> productEdit(
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @PathVariable Integer productId) {
+
+        AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
+        CommonResponse productInfoResponse = productSellerService.productEdit(user.getUserId(), productId);
+        ResultDto<ProductDetailResponseDto> result = ResultDto.in(productInfoResponse.getStatus(), productInfoResponse.getMessage());
+        result.setData((ProductDetailResponseDto) productInfoResponse.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @ApiOperation(value = "판매자 상품수정 API", notes = "판매자 상품수정")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<ResultDto<Void>> updateProduct(
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @PathVariable Integer productId, @RequestBody UpdateProductRequestDto updateProductDto) {
+
+        AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
+        CommonResponse updateProductResponse = productSellerService.updateProduct(user.getUserId(), productId, updateProductDto);
+        ResultDto<Void> result = ResultDto.in(updateProductResponse.getStatus(), updateProductResponse.getMessage());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @ApiOperation(value = "판매자 상품 목록조회 API", notes = "판매자 상품 목록조회")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/proudcts")
+    public ResponseEntity<ResultDto<ProductListResponseDto>> getSellerProductList(
+            @ApiIgnore @RequestHeader("ACCESS-TOKEN") String accessToken,
+            @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "10") int size){
+
+        AuthInfoUserId user = jwtTokenProvider.getUserId(accessToken.substring(TOKEN_PREFIX.length()));
+        PageRequest pageable = PageRequest.of(page-1, size);
+        CommonResponse productListResponse = productSellerService.getProductList(user.getUserId(), pageable);
+        ResultDto<ProductListResponseDto> result = ResultDto.in(productListResponse.getStatus(), productListResponse.getMessage());
+        result.setData((ProductListResponseDto) productListResponse.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
 
 
 }

@@ -67,6 +67,9 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private List<Brand> brands = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product")
+    private List<Image> images = new ArrayList<>();
+
 
     public static Product createProduct(Category category, Product product){
         return Product.builder()
