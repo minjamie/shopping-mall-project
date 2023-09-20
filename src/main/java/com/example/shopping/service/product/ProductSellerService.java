@@ -246,9 +246,9 @@ public class ProductSellerService {
 
     public CommonResponse getProductList(Integer userId, Pageable pageable) {
         Page<ProductResponseDto> result = productRepository.getProductListAll(pageable);
-        Pagination pagination = new Pagination(result.getTotalPages(), result.getTotalElements(), result.getNumber() + 1, result.isLast());
+        Pagination pagination = new Pagination(result.getTotalPages(), result.getTotalElements(),  result.getNumber()+1, result.isLast());
         ProductListResponseDto productListResponseDto = new ProductListResponseDto(pagination, result.getContent());
-        return errorService.createErrorResponse("판매자 상품목록 조회 완료하였습니다.", HttpStatus.OK, productListResponseDto);
+        return errorService.createSuccessResponse("판매자 상품목록 조회 완료하였습니다.", HttpStatus.OK, productListResponseDto);
     }
 
 

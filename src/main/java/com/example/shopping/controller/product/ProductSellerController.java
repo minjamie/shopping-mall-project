@@ -45,6 +45,28 @@ public class ProductSellerController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "상품 카테고리 목록조회 API", notes = "상품 등록시에 조회, 카테고리 목록 조회")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/products/categories")
+    public ResponseEntity<ResultDto<CategoryListResponseDto>> getCategoryList() {
+
+        CommonResponse categoryListResponse = productSellerService.getCategoryList();
+        ResultDto<CategoryListResponseDto> result = ResultDto.in(categoryListResponse.getStatus(), categoryListResponse.getMessage());
+        result.setData((CategoryListResponseDto) categoryListResponse.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @ApiOperation(value = "상품 서브카테고리 목록조회 API", notes = "상품 등록시 조회, 서브카테고리 목록조회")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/products/subcategory")
+    public ResponseEntity<ResultDto<SubCategoryListResponseDto>> getSubCategoryList(@RequestParam("categoryId") Integer categoryId) {
+        CommonResponse subCategoryListResponse = productSellerService.getSubCategoryList(categoryId);
+        ResultDto<SubCategoryListResponseDto> result = ResultDto.in(subCategoryListResponse.getStatus(), subCategoryListResponse.getMessage());
+        result.setData((SubCategoryListResponseDto) subCategoryListResponse.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
     @ApiOperation(value = "판매자 상품조회 API", notes = "판매자 상품조회")
     @ResponseStatus(HttpStatus.OK)
@@ -86,31 +108,12 @@ public class ProductSellerController {
         PageRequest pageable = PageRequest.of(page-1, size);
         CommonResponse productListResponse = productSellerService.getProductList(user.getUserId(), pageable);
         ResultDto<ProductListResponseDto> result = ResultDto.in(productListResponse.getStatus(), productListResponse.getMessage());
+        result.setData((ProductListResponseDto) productListResponse.getData());
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 
-    @ApiOperation(value = "상품 카테고리 목록조회 API", notes = "상품 등록시에 조회, 카테고리 목록 조회")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/products/categories")
-    public ResponseEntity<ResultDto<CategoryListResponseDto>> getCategoryList() {
 
-        CommonResponse categoryListResponse = productSellerService.getCategoryList();
-        ResultDto<CategoryListResponseDto> result = ResultDto.in(categoryListResponse.getStatus(), categoryListResponse.getMessage());
-        result.setData((CategoryListResponseDto) categoryListResponse.getData());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-
-    @ApiOperation(value = "상품 서브카테고리 목록조회 API", notes = "상품 등록시 조회, 서브카테고리 목록조회")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/products/subcategory")
-    public ResponseEntity<ResultDto<SubCategoryListResponseDto>> getSubCategoryList(@RequestParam("categoryId") Integer categoryId) {
-        CommonResponse subCategoryListResponse = productSellerService.getSubCategoryList(categoryId);
-        ResultDto<SubCategoryListResponseDto> result = ResultDto.in(subCategoryListResponse.getStatus(), subCategoryListResponse.getMessage());
-        result.setData((SubCategoryListResponseDto) subCategoryListResponse.getData());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
 
 
 }
