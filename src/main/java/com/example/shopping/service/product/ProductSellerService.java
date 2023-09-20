@@ -7,6 +7,7 @@ import com.example.shopping.dto.category.CategoryResponseDto;
 import com.example.shopping.dto.category.SubCategoryListResponseDto;
 import com.example.shopping.dto.category.SubCategoryResponseDto;
 import com.example.shopping.dto.common.CommonResponse;
+import com.example.shopping.dto.common.Pagination;
 import com.example.shopping.dto.product.*;
 import com.example.shopping.repository.brand.BrandRepository;
 import com.example.shopping.repository.cart.ProductOptionRepository;
@@ -20,6 +21,7 @@ import com.example.shopping.repository.user.UserRepository;
 import com.example.shopping.service.error.ErrorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -75,14 +77,19 @@ public class ProductSellerService {
             return errorService.createErrorResponse("해당 서브카테고리는 존재하지 않습니다.", HttpStatus.NOT_FOUND, null);
         }
 
-        Product product = insertProductDto.toEntity();
-        Product createProduct = Product.createProduct(category.get(), product);
-        productRepository.save(createProduct);
+        Product product = Product.createProduct(category.get(), insertProductDto.toEntity());
+        Product saveProduct = productRepository.save(product);
+
+        Brand brand = Brand.builder()
+                .name(insertProductDto.getBrand())
+                .product(saveProduct)
+                .build();
+        brandRepository.save(brand);
 
         Image image = Image.builder()
                 .type(insertProductDto.getImageType())
                 .url(insertProductDto.getImageUrl())
-                .product(createProduct)
+                .product(saveProduct)
                 .build();
         imageRepository.save(image);
 
@@ -91,7 +98,7 @@ public class ProductSellerService {
             return errorService.createErrorResponse("해당 옵션을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
         }
         ProductOption productOption = ProductOption.builder()
-                .product(createProduct)
+                .product(saveProduct)
                 .option(option.get())
                 .stock(insertProductDto.getStock())
                 .build();
@@ -130,12 +137,20 @@ public class ProductSellerService {
         }
 
         Product updateProduct = updateProductDto.toEntity();
-        Optional<Product> product = productRepository.findById(productId);
+        Optional<Product> product = productRepository.findById(updateProductDto.getProductId());
         if(product.isEmpty()){
             return errorService.createErrorResponse("해당 상품은 존재하지 않습니다.", HttpStatus.NOT_FOUND, null);
         }else{
             product.get().updateProduct(updateProduct);
         }
+
+        Optional<Brand> brand = brandRepository.findBrandByProduct(product.get());
+        if(brand.isEmpty()){
+            return errorService.createErrorResponse("해당 상품의 브랜드가 존재하지 않습니다. ", HttpStatus.NOT_FOUND, null);
+        }else{
+            brand.get().updateBrandName(updateProductDto.getBrand());
+        }
+
 
         Optional<Image> image = imageRepository.findImageByProduct(product.get());
         if(image.isEmpty()){
@@ -146,7 +161,9 @@ public class ProductSellerService {
 
 
         // 옵션 재고수량 변경
-        Optional<ProductOption> productOption = productOptionRepository.findByProductIdAndOptionId(updateProductDto.getProductId(), updateProductDto.getOptionId());
+        List<ProductOption> productOptions = product.get().getProductOptions();
+
+        Optional<ProductOption> productOption = productOptionRepository.findByProduct(product.get());
         if(productOption.isEmpty()){
             return errorService.createErrorResponse("해당 상품의 옵션을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
         }
@@ -221,21 +238,18 @@ public class ProductSellerService {
             return errorService.createErrorResponse("해당 상품 브랜드를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null);
         }
 
-        ProductResponseDto productResponseDto = ProductResponseDto.of(product.get(), brand.get(), image.get(), productOptionList);
+        ProductDetailResponseDto productDetailResponseDto = ProductDetailResponseDto.of(product.get(), brand.get(), image.get(), productOptionList);
 
-        return errorService.createSuccessResponse("판매자 상품조회 완료하였습니다.", HttpStatus.OK, productResponseDto);
+        return errorService.createSuccessResponse("판매자 상품조회 완료하였습니다.", HttpStatus.OK, productDetailResponseDto);
     }
 
 
-    public CommonResponse getProductList(Integer userId, Pageable pageable){
-        return errorService.createErrorResponse("판매자 상품목록 조회 완료하였습니다.", HttpStatus.OK, null);
+    public CommonResponse getProductList(Integer userId, Pageable pageable) {
+        Page<ProductResponseDto> result = productRepository.getProductListAll(pageable);
+        Pagination pagination = new Pagination(result.getTotalPages(), result.getTotalElements(),  result.getNumber()+1, result.isLast());
+        ProductListResponseDto productListResponseDto = new ProductListResponseDto(pagination, result.getContent());
+        return errorService.createSuccessResponse("판매자 상품목록 조회 완료하였습니다.", HttpStatus.OK, productListResponseDto);
     }
-
-
-
-
-
-
 
 
 

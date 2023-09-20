@@ -19,6 +19,7 @@ public class InsertProductRequestDto {
         private Integer subcategoryId;
         private Integer optionId;
         private String name;
+        private String brand;
         private Integer price;
         private Integer stock;
         private String description;
